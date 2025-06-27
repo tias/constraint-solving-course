@@ -1,0 +1,2 @@
+Varieties = {barley,@...@,wheat}; Blocks = {plot1,@...@,plot7};
+blockSize = 3; sampleSize = 3; balance = 1;

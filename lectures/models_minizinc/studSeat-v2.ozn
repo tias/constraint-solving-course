@@ -1,0 +1,4 @@
+output ["Student = array1d(1..20, ",show(Student),");\n","Programme = array1d(1..20, ",show(Programme),");\n"];
+int: nChairs = 20;
+array [1..nChairs] of int: Student;
+array [1..nChairs] of int: Programme;

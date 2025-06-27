@@ -1,0 +1,2 @@
+Days = 1..7;
+Doctors = {Dr_A, Dr_B, Dr_C, Dr_D, Dr_E};

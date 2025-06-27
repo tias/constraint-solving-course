@@ -1,0 +1,113 @@
+%% Source: https://pierre-flener.github.io/courses/M4CO/lectures.html
+%% Licensed under CC BY-NC-SA 4.0: https://creativecommons.org/licenses/by-nc-sa/4.0/
+%% You may share and adapt this for non-commercial use,
+%% with attribution and under the same license.
+
+\usepackage{listings}
+\usepackage{courier} % \texttt{...} gives thinner text and /\ displays OK
+
+\newcommand\mznfont{\fontfamily{pcr}\selectfont}
+
+\lstdefinelanguage{Mzn}
+{
+  morekeywords={
+  %
+  array, par, var, opt, constraint, solve, satisfy, minimize,
+  maximize, output, include, let, set, if, of, then, else, elseif, endif,
+  ann, annotation, bool, enum, float, int, string, where, function,
+  predicate, true, false, not, assert, trace,
+  % ???:
+  any, list, op, record, test, tuple, type,
+  %
+  },
+  %
+  keywords=[2]{
+  %
+  in, forall, exists, xor, xorall, iffall, clause,
+  all_different, all_different_int,
+  all_different_except_0, all_different_except, all_equal,
+  nvalue, diffn,
+  at_least, at_most, exactly, % deprecated!
+  count, count_eq, count_leq, count_geq, count_gt, among,
+  global_cardinality, global_cardinality_closed,
+  global_cardinality_low_up, global_cardinality_low_up_closed,
+  element, regular, regular_nfa, table, inverse,
+  bin_packing, bin_packing_capa, bin_packing_load, knapsack,
+  cumulative, disjunctive, circuit, subcircuit, dpath,
+  decreasing, increasing,
+  strictly_decreasing, strictly_increasing,
+  lex_less, lex_lesseq, lex_greater, lex_greatereq, lex2, strict_lex2,
+  value_precede, value_precede_chain,
+  symmetry_breaking_constraint, implied_constraint, redundant_constraint,
+  sort, arg_sort, among, sliding_sum,
+  int_ne, int_lt_reif, int_lin_eq, int_lin_eq_reif, bool_lin_eq, int_eq_imp,
+  bool_imply, array_bool_or,
+  in_set, subset, superset, partition_set, member,
+  % from ???:
+  abort,
+  acosh, asin, atan, cos, cosh, sin, sinh, tan, tanh,
+  array_intersect, array_union,
+  array1d, array2d, array3d, array4d, array5d, array6d,
+  bool2int, int2float, set2array,
+  abs, div, mod, pow, exp, sqrt, ln, log, log2, log10,
+  ceil, floor, round,
+  enum_next,
+  min, max, length, product, sum,
+  dom, dom_array, dom_size, fix, is_fixed,
+  index_set, index_set_1of2, index_set_2of2,
+  index_set_1of3, index_set_2of3, index_set_3of3, index_set_6of6,
+  concat, reverse, join,
+  lb, lb_array, ub, ub_array,
+  show, show2d, show_int, show_float,
+  card, intersect, union, diff, symdiff,
+  % annotations:
+  add_to_output,
+  is_defined_var, output_var, var_is_introduced, defines_var, promise_total,
+  value_propagation, bounds_propagation, domain_propagation,
+  bool_search, int_search, seq_search,
+  set_search, input_order, first_fail, anti_first_fail, smallest,
+  largest, occurrence, most_constrained, max_regret, indomain_min,
+  indomain_max, indomain_middle, indomain_median, indomain,
+  indomain_random, indomain_split, indomain_reverse_split,
+  indomain_interval, outdomain_max, outdomain_median, outdomain_min,
+  outdomain_random, complete, restart_constant, relax_and_reconstruct
+  % 
+  },
+  sensitive=true,
+  basicstyle=\mznfont,
+  commentstyle=\color[rgb]{0.2,0.4,0.4},
+  keywordstyle=\color[rgb]{0,0.5,0},
+  keywordstyle=[2]\color{blue},
+  stringstyle=\color{orange},
+  tabsize=2,
+  frame=none,
+  % identifierstyle = \it,
+  numbers=left,
+  stepnumber=1,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  xleftmargin=0pt, % numbers will be in the margins!
+  columns=fixed, % same width for all characters
+  % columns=flexible,
+  % columns=fullflexible,
+  morecomment=[l]{\%},
+  morestring=[b]",
+  % morestring=[d]',
+  showstringspaces=false,
+  mathescape=true,
+  breaklines=true,
+  % prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\space\red{\swarrow}}},%\hookrightarrow
+  %postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}},%\hookrightarrow
+  breakatwhitespace=true,
+  breakindent=10pt, % was: 20pt
+  moredelim=**[is][\color{Melon}]{@}{@},
+  escapeinside={{<@}{@>}}
+}
+%% Write "\begin{frame}[fragile]" for a slide using either of the
+%% following two listing environments, which have unnumbered
+%% respectively numbered lines:
+\lstnewenvironment{mzn}[1][]{\lstset{language=Mzn,#1}}{}
+\lstnewenvironment{mznno}[1][]{\lstset{language=Mzn,numbers=none,xleftmargin=0pt,#1}}{}
+%% Inline a code snippet, without respectively with the comprehension bar (|):
+\newcommand{\mzninline}[1]{\lstinline[{language=Mzn}]|#1|}
+\newcommand{\mzninlinebar}[1]{\lstinline[{language=Mzn}]!#1!}

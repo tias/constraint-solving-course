@@ -1,0 +1,2 @@
+Blocks = 1..7; Varieties = 1..7;
+blockSize = 3; sampleSize = 3; balance = 1;
