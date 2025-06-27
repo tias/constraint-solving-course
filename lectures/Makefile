@@ -5,6 +5,7 @@ all: $(TEXFILES:.tex=.pdf)
 
 %.pdf: %.tex
 	$(PDFLATEX) $<
+	$(PDFLATEX) $<  # a second time for the table of contents...
 
 clean:
 	rm -f *.aux *.log *.nav *.out *.snm *.synctex.gz *.toc *.vrb
