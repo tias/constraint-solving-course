@@ -13,7 +13,7 @@ The lectures are based on the nice <a href="https://github.com/Pierre-Flener/Pie
 
 The slides are in Beamer (Latex), the practice labs in Jupyter Notebooks with CPMpy.
 
-All course material is available under the open-source CC BY-NC-SA 4.0 license (see https://creativecommons.org/licenses/by-nc-sa/4.0)
+All course material is available under the open-source CC BY-NC-SA 4.0 license (see https://creativecommons.org/licenses/by-nc-sa/4.0). This means you can freely share and adapt it for non-commerical use, with attribution and under the same license.
 
 
 Lectures
