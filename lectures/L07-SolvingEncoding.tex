@@ -326,19 +326,19 @@
 
   Example:
   \begin{align*}
-    & (x \geq 0) \land (y \leq 0) \\
-    & (x = y + 1) \lor (x = 2 \cdot y) \\
-    & (x = 2) \lor (y = -2) \lor (x = y)
+    & (x \geq 0) \land (y \leq 0) ~\land \\
+    & \big(~(x = y + 1) \lor (x = 2 \cdot y)~\big) ~\land \\
+    & \big(~(x = 2) \lor (y = -2) \lor (x = y)~\big)
   \end{align*}
 
   Boolean skeleton:
-  $a \land b \land (c \lor d) \land (e \lor f \lor g)$
+  $a \land b \land \big(c \lor d\big) \land \big(e \lor f \lor g\big)$
 
   Theory constraints (each Boolean indicates whether a constraint holds or not):
   \begin{align*}
-    &a \leftrightarrow (x \geq 0) \land b \leftrightarrow y \leq 0) \land \\
-    &c \leftrightarrow (x = y + 1) \land d \leftrightarrow (x = 2 * y) \land \\
-    &e \leftrightarrow (x = 2) \land f \leftrightarrow (y = -2) \land g \leftrightarrow (x = y)
+    &a \leftrightarrow (x \geq 0) ~\land~ b \leftrightarrow (y \leq 0) ~\land \\
+    &c \leftrightarrow (x = y + 1) ~\land~ d \leftrightarrow (x = 2 * y) ~\land \\
+    &e \leftrightarrow (x = 2) ~\land~ f \leftrightarrow (y = -2) ~\land~ g \leftrightarrow (x = y)
   \end{align*}
 \end{frame}
 
