@@ -25,17 +25,17 @@ Each lecture is sized so it can be given in a 90 minute timeslot (except L07: 90
 
 **Basics:**
 
-  * L01: Introduction
-  * L02: Basic Modeling
-  * L03: Solving, debugging and explanation techniques
+  * L01: Introduction ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L01-Introduction.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L01-Introduction.tex))
+  * L02: Basic Modeling ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L02-BasicModeling.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L02-BasicModeling.tex))
+  * L03: Solving, debugging and explanation techniques ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L03-SolveDebugExplain.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L03-SolveDebugExplain.tex))
 
 **Advanced:**
 
-  * L04: Modeling with global constraints
-  * L05: Viewpoints and redundant constraints
-  * L06: Symmetry and dominance
-  * L07: Solving technologies and encodings
-  * L08: CP Search Strategies and Algorithm Configuration
+  * L04: Modeling with global constraints ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L04-GlobalCons.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L04-GlobalCons.tex))
+  * L05: Viewpoints and redundant constraints ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L05-ViewpointsRedundancy.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L05-ViewpointsRedundancy.tex))
+  * L06: Symmetry and dominance ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L06-SymmetryDominance.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L06-SymmetryDominance.tex))
+  * L07: Solving technologies and encodings ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L07-SolvingEncoding.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L07-SolvingEncoding.tex))
+  * L08: CP Search Strategies and Algorithm Configuration ([PDF](https://github.com/tias/constraint-solving-course/blob/main/lectures/L08-SearchConfiguration.pdf), [Tex](https://github.com/tias/constraint-solving-course/blob/main/lectures/L08-SearchConfiguration.tex))
 
 
 Practice labs
@@ -45,13 +45,13 @@ While the lectures are modeling language agnostic, the practice labs (also calle
 
 We provide notebooks without and with solutions. If you are a student, think about the learning opportunity you are denying yourself by looking at the solutions...
 
-  * E0: Homework: testing the exercise setup
-  * E1: Basic modeling
-  * E2: Debugging, solving, explaining and reification
-  * E3: Global constraints
-  * E4: Advanced modeling 1: viewpoints
-  * E5: Advanced modeling 2: symmetry
-  * E6: Solving technologies + algorithm configuration
+  * E0: Homework: testing the exercise setup [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E0_homework_setup.ipynb)
+  * E1: Basic modeling [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E1_basic_modeling.ipynb)
+  * E2: Debugging, solving, explaining and reification [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E2_debug_expl_reif.ipynb)
+  * E3: Global constraints [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E3_global_constraints.ipynb)
+  * E4: Advanced modeling 1: viewpoints [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E4_viewpoints.ipynb)
+  * E5: Advanced modeling 2: symmetry [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E5_symmetry.ipynb)
+  * E6: Solving technologies [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E6a_solving.ipynb) + algorithm configuration [ipynb](https://github.com/tias/constraint-solving-course/blob/main/practice/E6b_configuration.ipynb)
 
 
 Roadmap
