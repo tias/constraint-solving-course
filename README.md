@@ -21,7 +21,7 @@ Lectures
 
 The course is split up into 3 basic lectures and 5 advanced lectures. At KU Leuven, this is followed by research-based guest lectures on 'Advanced topics in CP research' (not included).
 
-Each lecture is sized so it can be given in a 90 minute timeslot (except L07: 90 + 45 minutes and L08: 45 minutes)
+Each lecture is sized so it can be given in a 2 hour timeslot (except L07: 2+1 hour and L08: 1 hour)
 
 **Basics:**
 
