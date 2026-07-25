@@ -1,18 +1,17 @@
 import cpmpy as cp
 from cpmpy.expressions.utils import all_pairs
 
-varieties,blocks = 7,7
-sampleSize,blockSize = 3,3
-balance = 1
+varieties, blocks = 7, 7
+sampleSize, blockSize, balance = 3, 3, 1
 
 BIBD = cp.boolvar(shape=(varieties, blocks),name="matrix")
 
 model = cp.Model(
     # every row must add up to sampleSize
     [cp.sum(row) == sampleSize for row in BIBD], 
-    # every column must add up to blocksize
+    # every column must add up to blockSize
     [cp.sum(col) == blockSize for col in BIBD.T], 
-    # the scalar product of every pair of distinct rows must sum up to balance
+    # for every pair of distinct rows, the scalar product must sum up to balance
     [cp.sum(row_i*row_j) == balance for row_i, row_j in all_pairs(BIBD)]
 )
 

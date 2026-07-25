@@ -3,7 +3,7 @@ import pytest
 import subprocess
 
 # Path to the folder containing the scripts
-SCRIPTS_DIR = '.'
+SCRIPTS_DIR = './models_cpmpy'
 
 def get_python_scripts(folder):
     """
@@ -20,6 +20,10 @@ def test_script_execution(script):
     script_path = os.path.join(SCRIPTS_DIR, script)
     result = subprocess.run(['python3', script_path], capture_output=True, text=True)
     assert result.returncode == 0, f"Script {script} failed with error:\n{result.stderr}"
+    with open(script_path + ".stdout", "w") as f:
+        f.write(result.stdout)
+    with open(script_path + ".stderr", "w") as f:
+        f.write(result.stderr)
 
 if __name__ == "__main__":
     pytest.main()

@@ -5,6 +5,7 @@
 
 \documentclass{cons-beamer}
 
+\usetikzlibrary{overlay-beamer-styles}
 \usetikzlibrary{shadows,fit,tikzmark,backgrounds}
 \usepackage{amsmath,amssymb}
 \DeclareMathOperator*{\argmin}{argmin}
@@ -38,287 +39,90 @@
 
 \begin{document}
 
-\begin{frame}{L08: CP Search Strategies and Algorithm Configuration}
-  \begin{center}
-    ~ \\
-    \includegraphics[height=42mm, trim=11px 8px 0 0, clip]{images/speedup} \\
-    Prof. Tias Guns and Dr. Dimos Tsouros \\[0.5em]
-    \includegraphics[width=2cm]{images/kuleuven_CMYK_logo.pdf}
-  \end{center}
-  
-  {\footnotesize 
-  Partly based on slides from Pierre Flener, Uppsala University and Lars Kotthoff, University of Wyoming.}
-  % https://pierre-flener.github.io/courses/M4CO/lectures.html
+\titleFrame{
+	L08: Portfolio solvers, algorithm configuration and parallelism
+}{
+	\includegraphics[height=42mm, trim=11px 8px 0 0, clip]{images/speedup}
+}{
+	Partly based on slides from Lars Kotthoff and Toby Davies.
+}
+
+\begin{frame}{Lecture Overview}
+	\footnotesize
+	
+	\textbf{Modeling:}
+	\begin{itemize} \setlength{\itemsep}{0pt}
+		\item L01: Introduction
+		\item L02: Basic modeling
+		\item L03: Global Constraints
+		\item L04: Viewpoints and redundancy
+		\item L05: Symmetry and dominance
+	\end{itemize}
+	
+	\textbf{Solving:}
+	\begin{itemize} \setlength{\itemsep}{0pt}
+		\item L06: Solving technologies and encodings, part 1
+		\item L07: Solving technologies and encodings, part 2
+		\item \textbf{L08: Portfolio solvers, algorithm configuration and parallelism}
+	\end{itemize}
+	
+	\textbf{Advanced topics in CP research:}
+	\begin{itemize} \setlength{\itemsep}{0pt}
+		\item L09: Topic TBA
+		\item L10: Topic TBA
+	\end{itemize}
 \end{frame}
 
-\begin{frame}{Goal of the lecture}
-  Different solvers will behave differently for different problems...
-  \vfill
 
-  Typical CP problems are NP-hard, and we can not expect to solve all problems efficiently (unless P=NP).
-  \vfill
-
-  But many problems of practical interest:
-  \begin{itemize}
-    \item Can be practically solved
-    \item Can be solved even faster with the right solving technology
-    \item And even even faster with the right solver configuration:\\
-          generic solvers include many \defined{design choices} and options to influence them.
-  \end{itemize}
-\end{frame}
-
-
-\section{Varying propagation strengths}
-
-\begin{frame}{CP solver structure}
-  \centering
-  \includegraphics[height=70mm]{images/cp_domain_store.png}
-\end{frame}
-
-\begin{frame}{Propagation strength}\label{propagator}
+\begin{frame}{Portfolio solvers}
   \begin{definition}
-    A \inference{propagator} for a predicate $\gamma$ deletes from the
-    domains of the
-    % decision
-    variables of a~$\gamma$-constraint the values that cannot
-    be in a solution to that constraint.
-    \vfill 
-
-    Not all impossible values need to be deleted:
-    \begin{itemize}
-      \item A \defined{domain-consistency (DC) propagator} deletes all
-        impossible values from the domains.
-      \item A \defined{bounds-consistency (BC) propagator} only deletes
-        all impossible minimum and maximum values from the domains.
-      \item A \defined{value-consistency (VC) propagator} is only awoken
-        when at least one of its decision variables became fixed.
-    \end{itemize}
+    A \defined{portfolio solver} refers to a solver that has a \textit{collection} of alternative search strategies, or even entire other solvers, that it chooses from.
   \end{definition}
   \vfill
-
-  There exist other, unnamed consistencies for propagators. \vfill
-
-  There is a trade-off between the time \& space complexity of a
-  propagator and its achieved deletion of domain values.
-\end{frame}
-
-\begin{frame}
-  \begin{example}[Linear equality constraints]
-    Consider the linear constraint $3 * x + 4 * y = z$ \\
-    with $\Domain{x} = \Set{0,1} =
-    \Domain{y}$ and $\Domain{z} =
-    \Set{0,\dots,10}$:
-    \begin{itemize}
-      \item A bounds-consistency propagator reduces
-        $\Domain{z}$ to $\Set{0,\dots,7}$.
-      \item A domain-consistency propagator reduces
-        $\Domain{z}$ to $\Set{0,3,4,7}$.
-    \end{itemize}
-    \vfill
-
-    Time complexity:
-    \begin{itemize}
-      \item A bounds-consistency propagator for a linear equality
-        constraint can be implemented to run in $\Oh{n}$ time, where $n$
-        is the number of decision variables in the constraint. 
-      \item A domain-consistency propagator for a linear equality
-        constraint can be implemented to run in $\Oh{n \cdot d^2}$ time,
-        where $n$ is the number of decision variables in the constraint
-        and $d$ is the sum of their domain sizes, hence in time
-        pseudo-polynomial = exponential in the input magnitude.
-    \end{itemize}
-  \end{example}
-\end{frame}
-
-\begin{frame}{Controlling the CP Inference} 
-  In the past, some solvers allowed users to set the propagation level for individual constraints (most notably the Gecode solver).
-  \vfill
-
-  Nowadays, solvers developers typically implement one (e.g. the strongest one) and run with it.
-  \vfill
-
-\end{frame}
-
-
-\section{Search strategies}
-
-\begin{frame}{Historic perspective}
-  \textbf{CP as a depth-first search framework}
-  \begin{itemize}    
-    \item Historically, constraint programming solvers allow programming your own constraints as well as \defined{programmable search}:\\
-      variable/value ordering and choices, e.g. which variables, what branching decision are created... also full access to the constraint and domain store.
-  \end{itemize}
-
-  \textbf{CP as generic satisfaction/optimisation solver}
+  
+  Example portfolio solvers:
+  {\small
   \begin{itemize}
-    \item Since a number of years, the CP community has been advancing on 'the holy grail' of black box search strategies that work well in general, so users can especially focus on the modeling part.
-    \item Solver-indendent modeling languages have taken one step further away from programmable search, allowing setting at most a variable/value ordering as a solver parameter.
+  	\item In the Pseudo-Boolean competition, it has become common to first run an ILP solver for limited time, only then start the PB solver on the hard instances.
+  	\item Commercial ILP solvers include a local search solver to find good initial solutions and hence a good initial upper bound (for minimisation).
+  	\item Modern SAT solvers divide their time between 'focussed mode' (frequent restarts, good for finding SAT solutions) and 'stable mode' (very few restarts and different heuristics, good for proving UNSAT)
   \end{itemize}
-\end{frame}
-
-\begin{frame}{Search Strategies}\label{searchCP}
-  \search{Search Strategies:}
-  \begin{itemize}
-    \item On which decision variable to branch next?
-    \item How to partition the domain of the chosen decision variable?
-    \item Which search (depth-first, breadth-first, \dots) to use?
-  \end{itemize}
-
-  The search is usually depth-first search.
-\end{frame}
-
-\begin{frame}{Variable Selection Strategy}
-  The variable selection strategy has an impact on the size of the
-  search tree.
+  }
   \vfill
+  \pause
 
-  \begin{example}[Impact of the variable selection strategy]
-    Consider $x \in \Set{1,2}$, $y \in \Set{1,2,3,4}$, $z \in \Set{1,\dots,6}$, \\
-    branching on all domain values, but no constraints: \vfill
-    \begin{itemize}
-      \item If selecting the decision variables in the order
-        $x, y, z$, then the CP search tree has 
-        $1 + 2 + 2 \cdot 4 + 2 \cdot 4 \cdot 6 = 59$
-        nodes and $2 \cdot 4 \cdot 6 = 48$ leaves.
-        \vfill
-
-      \item If selecting the decision variables in the order
-        $z, y, x$, then the CP search tree has
-        $1 + 6 + 6 \cdot 4 + 6 \cdot 4 \cdot 2 = 79$
-        nodes and also $6 \cdot 4 \cdot 2 = 48$ leaves.
-    \end{itemize}
-  \end{example}
-\end{frame}
-
-\begin{frame}\label{var}
-  \begin{definition}[First-Fail Principle]
-    To succeed, first try where you are most likely to fail. 
-    In practice:
-    \begin{itemize}
-      \item Select a decision variable with the smallest current domain.
-      \item Select a decision variable involved in the largest number of constraints.
-      \item Select a decision variable recently causing the most backtracks.
-    \end{itemize}
-  \end{definition}
-  \vfill
-
-  \begin{example}[Impact of the variable selection strategy]
-    Finding the first solution to $250$-queens with CPMpy-Choco
-    (CP):
-    \begin{center}
-      %% on Tias' intel laptop, Nov 2024
-      \begin{tabular}{lrr}
-        search & seconds \\
-        \midrule
-        default & 0.17 \\
-        smallest-domain, lb value & 0.19 \\
-        conflict-history search & 0.22 \\
-        activity-based search & 0.23 \\
-        domain size over weighted degree & $>30$ \\
-        input order, lb value & $>30$ \\
-        %failure rate-based search & >30
-      \end{tabular}
-    \end{center}
-  \end{example}
-\end{frame}
-
-\begin{frame}{Domain Partitioning Strategy}
-  (including value orderings)\vfill
-
-  \begin{example}[Impact of the domain partitioning strategy]
-    Consider $x \in \Set{1,2}$, $y \in \Set{1,2,3,4}$, $z \in \Set{1,\dots,6}$, \\
-    domain consistency for $x * y = z$, $x \neq y$, $x \neq z$, and $y \neq z$, \\
-    smallest-domain variable selection, and depth-first search:
-
-    \begin{itemize}
-      \item If the domain is split into singletons by increasing order, \\
-        then $6$ CP nodes are explored before finding the (unique) solution.
-
-      \item If the domain is split into singletons by decreasing order, \
-        then only $2$ CP nodes (the root and a leaf) are explored \\
-        before finding the (unique) solution, without backtracking.
-    \end{itemize}
-  \end{example}
-\end{frame}
-
-\begin{frame}\label{varval}
-  \begin{definition}[Best-First Principle]
-    First try a domain part that is most likely, if not guaranteed, to
-    have values that lead to solutions.
-  \end{definition} \vfill%
-
-  This may be like how one would make the greedy choice in a greedy
-    algorithm for the problem at hand, considering its objective
-    function.
-    
-  \begin{example}[Impact of the domain partitioning strategy]
-    %(Continued from slide~\ref{var}) \\ 
-    Finding the first solution to $750$-queens with CPMpy-Choco
-    \begin{center}
-      %% on Tias' intel laptop, Nov 2024
-      \begin{tabular}{lrr}
-        search & seconds \\
-        \midrule
-        smallest-domain, lb value & 3.35 \\
-        smallest-domain, ub value & 2.88 \\
-      \end{tabular}
-    \end{center}
-  \end{example}
+  Portfolio solvers can contain \textbf{independent solvers}, meaning that their implementations are independent pieces of code, or \textbf{dependent solvers} that do share data structures or other information during search.
 \end{frame}
 
 
-\section{Other design choices}
-
-\begin{frame}{Other search strategies}
-  \begin{description}
-    \item[warmstarting] if a previous solution is known \\
-    or a \textit{solution hint}: what value to try first for specific variables (very useful in repeated solving)
-
-    \item[heuristics/local search] to quickly find a feasible solution\\
-        provides an upper bound (for minimisation problems), good user experience
-
-    \item[probing\hfill] try assigning a variable to a value and propagate it (no search), derives failing values, or hidden consequences (e.g. if comparing propagation effect of assigning a Boolean variable to True and to False)
-    
-    \item[restarts during search] for clause learning solvers, backjump to the root node.\\
-    Can be very effective (because variable activity was updated during previous search, so most active variables are now at 'top' of the tree)
-  \end{description}
-\end{frame}
-
-\begin{frame}{Other solver configuration options}
-    These are often very solver-specific!!
-    \vspace{1em}
-
-    \textbf{OrTools CP-SAT}: %\footnote{\url{https://github.com/google/or-tools/blob/stable/ortools/sat/sat_parameters.proto}}:} 
-    \begin{itemize}
-      \item "cp\_model\_probing\_level": how much effort on probing
-      \item "search\_branching": search strategy (automatic, fixed, hint, LP-based, ...)
-      %\item "linearization\_level": which constraints to add to LP relaxation
-      \item "symmetry\_level": symmetry detection and breaking before/during search
-      \item "use\_phase\_saving": value selection = last value the variable was assigned to
-    \end{itemize}
-
-    \textbf{Choco}: %\footnote{\url{https://github.com/chocoteam/pychoco/blob/master/pychoco/backend.i}}:
-    In Python API only some search strategies are exposed. Java API: programmable search and tons of options!
-
-    \textbf{Gurobi} categories: %\footnote{\url{https://docs.gurobi.com/projects/optimizer/en/current/concepts/parameters/groups.html#secparametergroups}} categories:
-    \begin{itemize}
-      \item Tolerance parameters which control solution quality requirements
-      \item Algorithmic control parameters for Presolve, Simplex, Barrier, Scaling, MIP and MIP Cuts%, and Numerics;
-    \end{itemize}
+\begin{frame}{Portfolio solvers}
+	
+	A portfolio can be used in different ways:
+	\begin{itemize}
+		\item Choosing one solver from the portfolio to run: \textbf{algorithm selection}
+		\item Choosing a sequence of time-limited solver runs: \textbf{portfolio sequencing/scheduling}
+		\item Choosing which subset of solvers to run in parallel: \textbf{parallel portfolio selection}
+	\end{itemize}
+	Furthermore, this can be done statically (decided upfront, e.g. through \textbf{algorithm configuration}), or dynamically (choosing which/how long during search, based on the current state).
+	\vfill
+	\pause
+	
+	CPMpy is NOT a portfolio solver, because it does not automatically choose which solver to run for you (it defaults to ortools). But you \textit{could} build a portfolio solver on top of CPMpy that would choose a solver intelligently. 
+	
 \end{frame}
 
 
-\section{Algorithm Selection and Configuration}
+\section{Algorithm Selection}
 
 \begin{frame}{Algorithm Selection and Configuration}
 
-  Which solver to use? Which choices to make?
+  Which solver from the portfolio to use? Which choices to make?
   \vspace{1em}
 
   \begin{description}
     \item[Algorithm Selection] choose the best \emph{algorithm} for solving a
     problem
-    \item[Algorithm Configuration] choose the best \emph{parameter configuration}
+    \item[Algorithm Configuration] choose the best \emph{parameter configuration},\\ even for a single solver
   \end{description}
   \vspace{1em}
 
@@ -356,24 +160,31 @@
   \blfootnote{Rice, John R. ``The Algorithm Selection Problem.'' Advances in Computers 15 (1976): 65–118.}
 \end{frame}
 
-\begin{frame}{Building an Algorithm Selection System}
+\begin{frame}{(Automatic) algorithm selection}
 
-Most often 'instance specific' algorithm configuration:
+Automatic algorithm selection focusses on 'instance specific' configuration:
 
 \begin{itemize}
-	\item For an unseen instance: which algorithm (from the finite set) should I run?
+	\item For an unseen problem instance: which algorithm should I run on it?
 	\item Instance-specific: allowed to analyse the instance and decide based on \textit{features} that you can derive from it
 	\begin{itemize}
 		\item nr of variables, constraints
 		\item types of constraints used
-		\item constraint network (e.g. GNNs)
+		\item structure of the constraint network
 		\item probing (run an algorithm for short time, collect statistics)
 	\end{itemize}
-	\item Most often Machine Learning is used to build a \textbf{performance model},\\ and predict which algorithm to use.
+	\item Portfolio solver developers often hard-code their experience into if/then rules
+	\pause
+	
+	\item In \textit{automatic} algorithm selection, Machine Learning is typically used to build a \textbf{performance model}, and predict which algorithm to use.
+	\begin{itemize}
+		\item that means you need a \textit{training set} of instances for the ML model
+		\item and a \textit{test set} of instances on which to evaluate
+	\end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Types of Performance Models}
+\begin{frame}{Types of Performance Models for automatic algorithm selection}
 \begin{center}
 \resizebox{!}{.8\textheight}{%
 \tikzset{>=latex}
@@ -473,6 +284,9 @@ Algorithm 1\\Instance 3: Algorithm 3\\ $\vdots$};
 \end{center}
 \end{frame}
 
+
+\section{Algorithm Configuration}
+
 \begin{frame}{Algorithm Configuration = Automated Parameter Tuning}
   \begin{center}
   \[
@@ -501,8 +315,8 @@ Algorithm 1\\Instance 3: Algorithm 3\\ $\vdots$};
 \begin{frame}{Parameters?}
   \begin{itemize}
     \item anything you can change that makes sense to change
-    \item typically multiple parameters with many values (possible continuous): a \textbf{large} (possibly infinite) set
-    \item e.g.\ search heuristic, variable ordering, type of global constraint decompositions, presolve settings, different thresholds, ...
+    \item typically multiple parameters with many values (possibly continuous): a \textbf{large} (possibly infinite) set
+    \item e.g.\ search heuristic, variable ordering, type of global constraint decompositions, subsolvers to try and for how long, different thresholds, ...
     \item Example: CPLEX MIP solver, 76 parameters; Spear SAT solver, 26 parameters
   \end{itemize}
   \vspace{1em}
@@ -524,19 +338,24 @@ Algorithm 1\\Instance 3: Algorithm 3\\ $\vdots$};
   281–305.}
 \end{frame}
 
-\begin{frame}{Model-Based Optimization}
+\begin{frame}{\textit{Automatic} algorithm configuration}
+
+  Can we do better than grid/random?
+  \vfill
+
+  Target exploration to a limited number of promising configurations, within a time budget.
+  \vfill
+
+  Example: \textbf{model-based optimisation} (SMBO)
   \begin{itemize}
-    \item evaluate small number of initial (random) configurations
-    \item use (probabilistic) Machine Learning to train a surrogate model of parameter-performance surface based on this
-    \item use \textit{acquisition function} to decide most promising configuration to try next
+    \item evaluate a small number of initial (random) configurations
+    \item use (probabilistic) Machine Learning to train a \textit{surrogate model} of parameter-performance surface based on this
+    \item use an \textit{acquisition function} to decide most promising configuration to try next
     \item repeat, stop when resources exhausted or desired solution quality achieved
   \end{itemize}
-  \vspace{1em}
-
-  Allows targeted exploration of a limited number of promising configurations (time budget).
 \end{frame}
 
-\begin{frame}{Model-Based Optimization}
+\begin{frame}{Model-Based Optimization (black-box optimisation)}
 \begin{center}
 \scalebox{0.6}{%
 \tikzset{>=latex}
@@ -583,7 +402,7 @@ Parameter 3: $[-10..10]$};
 
 % Generating next 3 slides automatically
 \foreach \i in {2,3,4}{
-\begin{frame}{Sequential Model-Based Optimization (SMBO) Example}
+\begin{frame}{Sequential Model-Based Optimization (SMBO) with Gaussian Processes}
   \begin{center}
     \includegraphics[page=1,height=.63\textheight]{images/mbo-\i}  % images/mbo-2 images/mbo-3 images/mbo-4
   \end{center}
@@ -595,7 +414,7 @@ Parameter 3: $[-10..10]$};
 }
 
 \begin{frame}{Time Budget}
-	How much time/how many function evaluations?
+	How much time/how many function evaluations to give to the configurator?
 	\begin{itemize}
 		\item too much $\to$ wasted resources
 		\item too little $\to$ suboptimal result
@@ -603,24 +422,267 @@ Parameter 3: $[-10..10]$};
 		\item evaluate on parts of the instance set
 		\item for runtime: adaptive capping = solver timeout with current best runtime.
 	\end{itemize}
-  \vspace{1em}
+    \vfill
     
-  Need to evaluate on an unseen test-set to avoid 'over-tuning'.
+    Need to evaluate on an unseen test-set to avoid 'over-tuning'.
+    \vfill
+    \pause
+    
+    There exists a number of out-of-the-box libraries you can use for parameter configuration \textit{(hyperopt, smac3, ...)}
 \end{frame}
 
+\begin{frame}{Solver configuration options}
+	These are often very solver-specific!!
+	\vfill
+	
+	\textbf{OrTools CP-SAT}: %\footnote{\url{https://github.com/google/or-tools/blob/stable/ortools/sat/sat_parameters.proto}}:} 
+\begin{itemize}
+	\item "cp\_model\_probing\_level": how much effort on probing
+	\item "search\_branching": search strategy (automatic, fixed, hint, LP-based, ...)
+	%\item "linearization\_level": which constraints to add to LP relaxation
+	\item "symmetry\_level": symmetry detection and breaking before/during search
+	\item "use\_phase\_saving": value selection = last value the variable was assigned to
+\end{itemize}
+\vfill
+
+\textbf{Choco}: %\footnote{\url{https://github.com/chocoteam/pychoco/blob/master/pychoco/backend.i}}:
+In Python API only some search strategies are exposed. 
+%\\ (Java API also has programmable search)
+\vfill
+
+\textbf{Gurobi} categories: %\footnote{\url{https://docs.gurobi.com/projects/optimizer/en/current/concepts/parameters/groups.html#secparametergroups}}
+\begin{itemize}
+	\item Algorithmic control parameters for presolve, simplex, cuts, ...
+	\item Tolerance parameters which control solution quality requirements \\(not to be tuned automatically)
+\end{itemize}
+\end{frame}
+
+\section{Parallel portfolios}
+
+\begin{frame}{Parallel portfolios}
+	Almost all computers nowadays have multiple cores.
+	\vfill
+	
+	Why use only one?
+	\vfill
+	\pause
+	
+	Idea: try many varied search strategies in parallel.
+	\vfill
+	
+	Some worker is likely to get lucky and find a good solution!
+	\begin{itemize}
+		\item \textit{Diversity} in strategies can be more important than individual strength
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{OrTools CP-SAT parallel portfolio deep-dive}
+	OrTools CP-SAT is very much a (parallel) portfolio solver (T. Davies, 2025):
+	
+	{\small
+		\begin{itemize}
+			\item 18 \textbf{full problem subsolvers}: [core, default\_lp, fixed, lb\_tree\_search, max\_lp, no\_lp, objective\_lb\_search, objective\_lb\_search\_max\_lp,	objective\_lb\_search\_no\_lp, objective\_shaving\_max\_lp, objective\_shaving\_no\_lp, probing, probing\_max\_lp, probing\_no\_lp, pseudo\_costs, quick\_restart,	quick\_restart\_no\_lp, reduced\_costs]
+			
+			\item 46 \textbf{first solution subsolvers}: [fj(14), fj\_lin(6), fs\_random(7), fs\_random\_no\_lp(7), fs\_random\_quick\_restart(6), fs\_random\_quick\_restart\_no\_lp(6)]
+			
+			\item 31 \textbf{interleaved subsolvers}: [feasibility\_pump, graph\_arc\_lns, graph\_cst\_lns, graph\_dec\_lns, graph\_var\_lns, lb\_relax\_lns, ls(11), ls\_lin(5), rins/rens, rnd\_cst\_lns, rnd\_var\_lns, routing\_full\_path\_lns, routing\_path\_lns, routing\_random\_lns, variables\_shaving, variables\_shaving\_max\_lp, variables\_shaving\_no\_lp]
+		\end{itemize}
+	}
+\end{frame}
+
+\begin{frame}{OrTools CP-SAT parallel portfolio deep-dive}
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{images/ort_parallel}
+	\end{center}
+	\vfill
+	
+	For $n$ workers:
+	\begin{itemize}
+		\item Start $n/2$ full problem solvers
+		\item Start $n/2$ first solution subsolvers. When one has finished, continue interleaving (heuristic) subsolvers in that thread.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{OrTools CP-SAT parallel portfolio deep-dive}
+	This many independent solvers would be wasteful...
+	\vfill
+	
+	What they share:
+	\begin{itemize}
+		\item Bounds on the objective function
+		\item The best 3 solutions found so far
+		\item Root-level variable bounds (=unary constraints)
+		\item Binary clauses
+		\item Some short learned (conflict analysis) clauses
+	\end{itemize}
+	\vfill
+	\pause
+	
+	Can not share all learned clauses: more sharing is slower sharing, more clauses can lead to slower memory access.
+	
+\end{frame}
+
+\section{Other parallel paradigms}
+
+\begin{frame}{Other parallel paradigms}
+	A parallel portfolio is one parallel paradigm, very good up to a reasonable number of cores (16-24).
+	\vfill
+	
+	What if you want to speed up across \textit{many many} cores? 64+?\\
+	parallel exploration of a shared search tree!
+	\vfill
+	
+	Two generic paradigms:
+	\begin{itemize}
+		\item Embarrassingly parallel search
+		\item Work stealing
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Embarrassingly parallel search}
+	If you can split a problem into \textit{independent} sub-problems, then it becomes (embarrassingly) easy to solve it in parallel.
+	\vfill
+	
+	For search trees: do a breadth-first enumeration up to depth $n$. \\
+	E.g. a binary search tree would create $2^n$ independent subtrees:
+	\begin{center}
+	\begin{tikzpicture}[auto,scale=0.88]	
+		\tikzstyle{bbnode}=[circle,draw=black,fill=blue!20,semithick,inner sep=.5ex]
+		\tikzstyle{leaf}=[bbnode,green!60!black,fill=green!60!black!20]
+		\tikzstyle{var}=[rectangle,node distance=3ex];
+		\tikzstyle{txt} += [font=\tiny]
+		
+		{ \node (root) at (2.25,4) [bbnode] {}; } 
+		
+		{ \node (fork1) at (1,3) [bbnode]{} edge (root);}
+		{ \node (fork2) at (3.5,3) [bbnode]{} edge (root); }
+			
+		\draw (1.32,3.6) node[txt]{$x = 1$};
+		\draw (3.2,3.6) node[txt]{$x \neq 1$};
+		
+		{ \node (leaf1) at (.5,2) [leaf]{} edge (fork1);}
+		{ \node (leaf2) at (1.5,2) [leaf]{} edge (fork1);}  
+		\draw (0.37,2.5) node[txt]{$y = 1$};
+		\draw (1.66,2.5) node[txt]{$y \neq 1$};
+		
+		{ \node (leaf3) at (3,2) [leaf]{} edge (fork2);}
+		{ \node (leaf4) at (4,2) [leaf]{} edge (fork2);}  
+		\draw (2.87,2.5) node[txt]{$y = 1$};
+		\draw (4.16,2.5) node[txt]{$y \neq 1$};
+	\end{tikzpicture}
+	\end{center}
+	\vfill
+	
+	Each set of choices up to that depth, when added as a constraint, creates an independent subproblem: the best solution across all is the best for the original problem.
+	
+\end{frame}
+
+\begin{frame}{Embarrassingly parallel search}
+	If you can split a problem into \textit{independent} sub-problems, then it becomes (embarrassingly) easy to solve it in parallel.
+	\vfill
+	
+	Pro:
+	\begin{itemize}
+		\item Easy and fast to do the splitting
+		\item No interaction between subproblems needed
+	\end{itemize}
+	
+	Con:
+	\begin{itemize}
+		\item Workers have to wait for the subproblem splitting to be ready\\
+		 (could do depth-limited DFS and a queue)
+		\item Subproblems can be very unbalanced: \\
+		  some might be trivial to solve, others take as much time as the original problem
+		\item Workers become idle when the queue is empty
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Work stealing}
+	Give the search tree to one worker.\\
+	Until finished: if a worker has no subtree, \textit{steal} part of the search tree of another worker.
+	\vfill
+	
+	\begin{center}
+		\begin{tikzpicture}[auto,scale=0.88]	
+			\tikzstyle{bbnode}=[circle,draw=black,fill=blue!20,semithick,inner sep=.5ex]
+			\tikzstyle{leaf}=[bbnode,green!60!black,fill=green!60!black!20]
+			\tikzstyle{closed}=[bbnode,black,fill=black!20]
+			\tikzstyle{var}=[rectangle,node distance=3ex];
+			\tikzstyle{txt} += [font=\tiny]
+			
+			{ \node (root) at (2.25,4) [bbnode] {}; } 
+			
+			{ \node (fork1) at (1,3) [bbnode]{} edge (root);}
+			{ \node (fork2) at (3.5,3) [bbnode]{} edge (root); }
+			
+			\draw (1.32,3.6) node[txt]{$x = 1$};
+			\draw (3.2,3.6) node[txt]{$x \neq 1$};
+			
+			{ \node (leaf1) at (.5,2) [leaf]{} edge (fork1);}
+			{ \node (leaf2) at (1.5,2) [leaf]{} edge (fork1);}  
+			\draw (0.37,2.5) node[txt]{$y = 1$};
+			\draw (1.66,2.5) node[txt]{$y \neq 1$};
+			
+			{ \node (leaf3) at (3,2) [alt=<3->{bbnode}{leaf}]{} edge (fork2);}
+			{ \node (leaf4) at (4,2) [alt=<2->{closed}{leaf}]{} edge (fork2);}
+			\draw (2.87,2.5) node[txt]{$y = 1$};
+			\draw (4.16,2.5) node[txt]{$y \neq 1$};
+
+			\visible<2>{
+				\draw[->,dashed] (leaf4) -- (leaf3);
+			}
+			
+			\visible<3>{
+				\node (leaf3a) at (2.6,1) [leaf]{} edge (leaf3);
+				\node (leaf3b) at (3.4,1) [leaf]{} edge[dashed] (leaf3);
+				\draw (2.45,1.5) node[txt]{$z = 2$};
+				\draw (3.55,1.5) node[txt]{$z \neq 2$};
+				\draw[->,dashed] (leaf4) -- (leaf3b);
+			}
+			
+		\end{tikzpicture}
+	\end{center}
+	\vfill
+	
+	\visible<2->{
+	Requires the worker with the tree to spend time \textit{splitting} its search tree and communicating it to the idle worker.
+	}
+	
+\end{frame}
+
+\begin{frame}{Work stealing}
+	Give the search tree to one worker.\\
+	Until finished: if a worker has no subtree, \textit{steal} part of the search tree of another worker.
+	\vfill
+	
+	Pro:
+	\begin{itemize}
+		\item Workers are never idle: the search tree can always be split further
+	\end{itemize}
+	
+	Con:
+	\begin{itemize}
+		\item Splitting and its communication needs modified implementations \\
+		(e.g. split where, and make sure the original worker does not backtrack over it)
+		\item Splitting takes time and does not involve actually searching
+		\item Subproblems can be unbalanced, leading idle workers to keep interrupting the busy workers (e.g. with 40+ workers)
+	\end{itemize}
+\end{frame}
 
 \begin{frame}{Summary}
+  Single-thread portfolio:
   \begin{description}
     \item[Algorithm Selection] choose the best \emph{algorithm} for solving a problem
     \item[Algorithm Configuration] choose the best \emph{parameter configuration}
       for solving a problem with an algorithm
   \end{description}
-  \vspace{1em}
+  \vfill
 
+  Parallelism:
   \begin{itemize}
-    \item mature research areas
-    \item can combine configuration and selection
-    \item effective tools are available (e.g. HyperOpt, does SMBO (without adaptive capping...))
+  	\item OrTools CP-SAT as example of a \textbf{parallel portfolio}: full workers, first solution workers and interleaved heuristic workers.
+  	\item Embarrassingly parallel search tree splitting
+  	\item Work stealing (ad-hoc search tree splitting)
   \end{itemize}
 \end{frame}
 

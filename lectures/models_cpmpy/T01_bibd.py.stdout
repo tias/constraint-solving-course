@@ -1,0 +1,9 @@
+The first (list of) constraint: [sum([matrix[0,0], matrix[0,1], matrix[0,2], matrix[0,3], matrix[0,4], matrix[0,5], matrix[0,6]]) == 3, sum([matrix[1,0], matrix[1,1], matrix[1,2], matrix[1,3], matrix[1,4], matrix[1,5], matrix[1,6]]) == 3, sum([matrix[2,0], matrix[2,1], matrix[2,2], matrix[2,3], matrix[2,4], matrix[2,5], matrix[2,6]]) == 3, sum([matrix[3,0], matrix[3,1], matrix[3,2], matrix[3,3], matrix[3,4], matrix[3,5], matrix[3,6]]) == 3, sum([matrix[4,0], matrix[4,1], matrix[4,2], matrix[4,3], matrix[4,4], matrix[4,5], matrix[4,6]]) == 3, sum([matrix[5,0], matrix[5,1], matrix[5,2], matrix[5,3], matrix[5,4], matrix[5,5], matrix[5,6]]) == 3, sum([matrix[6,0], matrix[6,1], matrix[6,2], matrix[6,3], matrix[6,4], matrix[6,5], matrix[6,6]]) == 3]
+BIBD: 7 obj, 7 blocks, sampleSize=3, blockSize=3, balance=1
+Object 1: [       X   X X ]
+Object 2: [     X   X   X ]
+Object 3: [   X     X X   ]
+Object 4: [   X X X       ]
+Object 5: [ X     X X     ]
+Object 6: [ X   X     X   ]
+Object 7: [ X X         X ]

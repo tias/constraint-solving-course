@@ -1,0 +1,6 @@
+/home/hbierlee/Projects/CoS-private/lectures/models_cpmpy/./t3_graph_colouring.py:30: SyntaxWarning: invalid escape sequence '\['
+  a = int(re.search("\[[0-9]*\]", str(n1)).group()[1:-1])
+/home/hbierlee/Projects/CoS-private/lectures/models_cpmpy/./t3_graph_colouring.py:31: SyntaxWarning: invalid escape sequence '\['
+  b = int(re.search("\[[0-9]*\]", str(n2)).group()[1:-1])
+/home/hbierlee/Projects/CoS-private/lectures/venv/lib/python3.12/site-packages/cpmpy/solvers/gurobi.py:46: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources

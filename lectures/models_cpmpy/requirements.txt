@@ -1,0 +1,4 @@
+cpmpy
+pytest
+networkx
+matplotlib

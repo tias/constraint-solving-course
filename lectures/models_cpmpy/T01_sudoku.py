@@ -15,14 +15,14 @@ given = np.array([
     [e, 9, e,  e, e, e,  4, e, e]])
 
 import cpmpy as cp
-#given = np.array(...)  # load the hints, uses '0' for the empty cells
+#given = np.array(...)  # load the clues, uses '0' for the empty cells
 grid = cp.intvar(1,9, shape=given.shape, name="grid")  # Decision variables
 model = cp.Model(
     [cp.AllDifferent(row) for row in grid],
     [cp.AllDifferent(col) for col in grid.T],  # numpy's Transpose
     [cp.AllDifferent(grid[i:i+3, j:j+3]) \
         for i in range(0, 9, 3) for j in range(0, 9, 3)],
-    grid[given!=0] == given[given!=0],  # enforce the hints
+    grid[given!=0] == given[given!=0],  # enforce the clues
 )
 model.solve()
 

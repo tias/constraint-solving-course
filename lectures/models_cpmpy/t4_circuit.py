@@ -8,10 +8,10 @@ distance = np.random.randint(10, 51, size=(cities, cities))
 np.fill_diagonal(distance, 0)
 distance = cpm_array(distance)
 
-S = cp.intvar(1, cities, shape=cities)
+S = cp.intvar(0, cities - 1, shape=cities)
 model = cp.Model()
 
 model.add(cp.Circuit(S))
-model.minimize(sum(distance[city, S[city]] for city in range(cities)))
+model.minimize(cp.sum(distance[city, S[city]] for city in range(cities)))
 
 model.solve()

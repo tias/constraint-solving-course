@@ -32,27 +32,20 @@
 
 \begin{document}
 
-
-\begin{frame}{L01: Intro to Model+Solve and Combinatorial Optimisation}
-  \begin{center}
-    ~ \\
-    \includegraphics[height=38mm]{images/CO_examples} \\
-    ~ \\
-    Prof. Tias Guns and Dr Dimos Tsouros \\[0.5em]
-    \includegraphics[width=2cm]{images/kuleuven_CMYK_logo.pdf}
-  \end{center}
-  
-  {\footnotesize 
-  Based on slides from Pierre Flener, Uppsala University + slides from Guido Tack \& Chris Beck.}
-  % https://pierre-flener.github.io/courses/M4CO/lectures.html
-\end{frame}
+\titleFrame{
+	L01: Introduction to Constraint Solving
+}{
+	\includegraphics[height=38mm]{images/CO_examples}
+}{
+	Partly based on slides from Pierre Flener, Guido Tack and Chris Beck.
+}
 
 
 \begin{frame}
   \begin{example}[From: Steven S. Skiena's The Algorithm Design Manual]
     \small
     Imagine you are a highly-in-
-    demand actor, who has been presented with offers to star in n different movie
+    demand actor, who has been presented with offers to star in $n$ different movie
     projects under development. Each offer comes specified with the first and last day
     of filming. To take the job, you must commit to being available throughout this
     entire period. Thus, you cannot simultaneously accept two jobs whose intervals
@@ -86,96 +79,176 @@
 \end{frame}
 
 \begin{frame}
-  \begin{example}[From: Steven S. Skiena's The Algorithm Design Manual]
-    \small
-    Imagine you are a highly-in-
-    demand actor, who has been presented with offers to star in n different movie
-    projects under development. Each offer comes specified with the first and last day
-    of filming. To take the job, you must commit to being available throughout this
-    entire period. Thus, you cannot simultaneously accept two jobs whose intervals
-    overlap.
-
-    $ $
-    
-    For an artist such as yourself, the criteria for job acceptance is clear: you want
-    to make as much money as possible. Because each of these films pays the same fee
-    per film, this implies you seek the largest possible set of jobs (intervals) such that no two of them conflict with each other.
-
-    \begin{table}[h!]
-      \centering
-      \tiny
-      \begin{tabular}{| m{5cm} | m{2cm} | m{2cm} |}
-        \hline
-        \textbf{Title} & \textbf{Start} & \textbf{End} \\
-        \hline
-        ... & ... & ... \\
-        \hline
-      \end{tabular}
-    \end{table}
-  \end{example}
-  How would you solve this problem?
-  \begin{enumerate}
-    \item Trial and error on paper
-    \item Write a custom search algorithm
-    \item Reuse an existing, generic problem solving paradigm \alt<2>{\textbf{$\Leftarrow$ This Course}}{}
-  \end{enumerate}
+	\begin{example}[From: Steven S. Skiena's The Algorithm Design Manual]
+		\small
+		Imagine you are a highly-in-
+		demand actor, who has been presented with offers to star in n different movie
+		projects under development. Each offer comes specified with the first and last day
+		of filming. To take the job, you must commit to being available throughout this
+		entire period. Thus, you cannot simultaneously accept two jobs whose intervals
+		overlap.
+		
+		$ $
+		
+		For an artist such as yourself, the criteria for job acceptance is clear: you want
+		to make as much money as possible. Because each of these films pays the same fee
+		per film, this implies you seek the largest possible set of jobs (intervals) such that no two of them conflict with each other.
+		
+		\begin{table}[h!]
+			\centering
+			\tiny
+			\begin{tabular}{| m{5cm} | m{2cm} | m{2cm} |}
+				\hline
+				\textbf{Title} & \textbf{Start} & \textbf{End} \\
+				\hline
+				... & ... & ... \\
+				\hline
+			\end{tabular}
+		\end{table}
+	\end{example}
+	How would you solve this problem?
+	\begin{enumerate}
+		\item Trial and error on paper
+		\item Write a custom search algorithm
+		\item Reuse an existing, generic problem solving paradigm
+	\end{enumerate}
 \end{frame}
 
-% based on slide from Chris Beck 
-\begin{frame}{Model-and-Solve}
+\begin{frame}{1. Trial and error on paper}
+	You would probably draw the start/end times to get an overview:
+	\begin{center}
+		\includegraphics[height=0.5\textheight]{images/Skiena_gantt.png}
+	\end{center}
+	
+	and then do some elimination and intuition-driven choices.
+	
+	$ $
+	
+	\pause
+	Now imagine every movie has a different fee, how to make sure you have the \textbf{optimal} solution?	
+\end{frame}
+
+\begin{frame}{2. Do exhaustive search with an algorithm}
+	
+	\vspace*{-4em} % move content up
+	\begin{center}
+		\scalebox{0.9}{%
+			\begin{tikzpicture}[
+				grow=down,
+				level distance=1.2cm,
+				level 1/.style={sibling distance=32mm},
+				level 2/.style={sibling distance=16mm},
+				level 3/.style={sibling distance=8mm}, % smaller spacing for third level
+				every node/.style={circle,draw,minimum size=6mm,inner sep=0pt}
+				]
+				% root (circled)
+				\node (root) {}
+				child { node (L) {}
+					child { node (L1) {}
+						child { node (L11) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (L12) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,left=-1px,font=\tiny]{Yes}
+					}
+					child { node (L2) {}
+						child { node (L21) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (L22) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,right=-2px,font=\tiny]{No}
+					}
+					edge from parent node[draw=none,left=-1px,font=\tiny]{Yes}
+				}
+				child { node (R) {}
+					child { node (R1) {}
+						child { node (R11) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (R12) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,left=-1px,font=\tiny]{Yes}
+					}
+					child { node (R2) {}
+						child { node (R21) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (R22) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,right=-2px,font=\tiny]{No}
+					}
+					edge from parent node[draw=none,right=-2px,font=\tiny]{No}
+				};
+				
+				% dots directly under each leaf (third layer)
+				%\foreach \x in {L11,L12,L21,L22,R11,R12,R21,R22}
+				%\node[draw=none,below=6pt of \x] {$\vdots$};
+				% small downward-pointing triangles directly under each leaf
+				\foreach \x in {L11,L12,L21,L22,R11,R12,R21,R22}
+				\draw[line width=0.2pt] 
+				(\x.south) ++(0,-0.1) -- ++(-3mm,-12mm) -- ++(6mm,0) -- cycle;
+				
+				
+				% label to the right of the root
+				\node[draw=none,right=6pt of root,font=\small] {Tarjan of the Jungle};
+				% label to the right of lvl 3
+				\node[draw=none,right=6pt of R,font=\small] {The Four Volume Problem};
+				% label to the right of lvl 2
+				\node[draw=none,right=6pt of R2,font=\small] {The President's Algorist};
+				% label to the right of lvl 3
+				\node[draw=none,right=6pt of R22,font=\small] {Steiner's Tree};
+				
+			\end{tikzpicture}
+		}
+	\end{center}
+	
+	\pause
+	\begin{itemize}
+		\item 9 possible movies $\Rightarrow 2^9 (=512)$ possible solutions to explore
+		\item How and when to enforce the non-overlap constraints?
+		\item Can search faster by choosing other movie first? What when different fees?
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\begin{example}[From: Steven S. Skiena's The Algorithm Design Manual]
+		\small
+		Imagine you are a highly-in-
+		demand actor, who has been presented with offers to star in n different movie
+		projects under development. Each offer comes specified with the first and last day
+		of filming. To take the job, you must commit to being available throughout this
+		entire period. Thus, you cannot simultaneously accept two jobs whose intervals
+		overlap.
+		
+		$ $
+		
+		For an artist such as yourself, the criteria for job acceptance is clear: you want
+		to make as much money as possible. Because each of these films pays the same fee
+		per film, this implies you seek the largest possible set of jobs (intervals) such that no two of them conflict with each other.
+		
+		\begin{table}[h!]
+			\centering
+			\tiny
+			\begin{tabular}{| m{5cm} | m{2cm} | m{2cm} |}
+				\hline
+				\textbf{Title} & \textbf{Start} & \textbf{End} \\
+				\hline
+				... & ... & ... \\
+				\hline
+			\end{tabular}
+		\end{table}
+	\end{example}
+	How would you solve this problem?
+	\begin{enumerate}
+		\item Trial and error on paper
+		\item Write a custom search algorithm
+		\item Reuse an existing, generic problem solving paradigm \textbf{$\Leftarrow$ This Course}
+	\end{enumerate}
+\end{frame}
+
+
+% originally based on slide from Chris Beck 
+\begin{frame}{Model + Solve paradigm}
   \centering
-  \includegraphics[height=68mm]{images/prob2def}
+  \includegraphics[width=\textwidth]{images/model_solve}
 \end{frame}
-\begin{frame}{Model-and-Solve}
-  \centering
-  \includegraphics[height=68mm]{images/prob2sol}
-\end{frame}
+
 
 \begin{frame}{Outline}
   \tableofcontents
 \end{frame}
 
-\section{Combinatorial Optimisation Problems}
-
-\begin{frame}{Combinatorial Optimisation}
-  \begin{center}
-    ~ \\
-    \includegraphics[height=48mm]{images/CO_examples} \\
-    ~ \\
-    \visible<2>{Combinatorial Optimisation is a science of \alert{service}: \\
-    to scientists, to engineers, to artists, and to society.}
-  \end{center}
-\end{frame}
-
-\begin{frame}
-  \begin{example}[Agricultural experiment design]
-    \begin{table} \small
-      \begin{tabular}{r|c|c|c|c|c|c|c|}
-        \multicolumn{1}{r}{} & \multicolumn{1}{c}{\BlkOne}
-        & \multicolumn{1}{c}{\BlkTwo} & \multicolumn{1}{c}{\BlkThree}
-        & \multicolumn{1}{c}{\BlkFour} & \multicolumn{1}{c}{\BlkFive}
-        & \multicolumn{1}{c}{\BlkSix} & \multicolumn{1}{c}{\BlkSeven} \\
-        \cline{2-8}
-        \VarOne   & \alt<2>{\tick}{} & \alt<2>{\tick}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{--}{} \\ \cline{2-8}
-        \VarTwo   & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{--}{} \\ \cline{2-8}
-        \VarThree & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{\tick}{} \\ \cline{2-8}
-        \VarFour  & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{--}{} \\ \cline{2-8}
-        \VarFive  & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{\tick}{} \\ \cline{2-8}
-        \VarSix   & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{\tick}{} \\ \cline{2-8}
-        \VarSeven & \alt<2>{--}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{--}{} & \alt<2>{\tick}{} & \alt<2>{\tick}{} & \alt<2>{--}{} \\
-        \cline{2-8}
-      \end{tabular}
-    \end{table}
-    \textbf{Constraints} to be \textbf{satisfied}:
-    \begin{enumerate}
-      \item Equal \VarSem\ size: Every \Variety\ is \VarBlk\ 3 \Block s.
-      \item Equal \BlkSem\ load: Every \Block\ \BlkVar\ 3 \Variety s.
-      \item Balance: Every \Variety\ pair is \VarBlk\ 1 common \Block.
-    \end{enumerate}
-    \textbf{Instance}: $7$ \Block s, $7$ \Variety s, $3$ \Variety
-    s/\Block, $3$ \Block s/\Variety, balance~$1$.
-  \end{example}
-\end{frame}
+\section{Combinatorial Optimisation Problems in the wild}
 
 \begin{frame}
   \begin{example}[Doctor rostering]
@@ -211,6 +284,28 @@
   \end{example}
 \end{frame}
 
+
+\begin{frame}{Applications in Healthcare}
+	\begin{tabular}{CC}
+		\structured{Doctor rostering}\invisible{gy} \newline
+		\includegraphics[width=50mm]{images/physicians}
+		% which doctor for which shift (constraints on availability, preferences, regulations for weekend work etc)
+		&
+		\structured{Radiotherapy beam optimisation} \newline
+		\includegraphics[width=50mm]{images/medical}
+		% which beam from which angle with which intensity (constraints on damage to bad cells vs damage to good cells)
+		\\[+8mm]
+		\structured{Phylogenetic supertree constr.} \newline
+		\includegraphics[height=28mm]{images/seabirds}
+		% which supertree is maximally consistent with shared species in the tree?
+		&
+		\structured{Haplotype inference} \newline
+		\includegraphics[height=25mm]{images/genotype-haplotype}
+		% given n child genotypes, find a minimal set of parent haplotypes so that each given genotype is the merge of 2 found haplotypes
+	\end{tabular}
+\end{frame}
+
+
 \begin{frame}
   \begin{example}[Vehicle routing: parcel delivery]
     \structured{Given} a depot with parcels for clients and a vehicle
@@ -243,207 +338,222 @@
   \end{example}
 \end{frame}
 
-\begin{frame}{Applications in Air Traffic Management}
+
+\begin{frame}{Applications in Transportation}
+	\begin{tabular}{CC}
+		\structured{Waste collection routing} \newline
+		% which truck picks up waste where (constraints on capacity, duration, fairness)
+		\includegraphics[height=35mm]{images/routes_waste}
+		&
+		\structured{Container packing} \newline
+		% which packages goes where (constraints on volume, stability)
+		\includegraphics[height=32mm]{images/binPacking}
+		\\[+8mm]
+		\structured{Contingency planning} \newline\newline
+		\tiny
+		\begin{tabular}{|l|c|c|}
+			\hline
+			Flow & Time Span & Hourly Rate \\
+			\hline
+			From: Arlanda   & 00:00 -- 09:00 & 3 \\
+			To: west, south & 09:00 -- 18:00 & 5 \\
+			& 18:00 -- 24:00 & 2 \\
+			\hline
+			From: Arlanda   & 00:00 -- 12:00 & 4 \\
+			To: east, north & 12:00 -- 24:00 & 3 \\
+			\hline
+			\dots & \dots & \dots \\
+			\hline
+		\end{tabular}
+		&
+		\structured{Traffic control sectorisation} \newline
+		% which traffic controller manages which space (constraints on contiguity, balance)
+		\includegraphics[height=25mm]{images/sectorLondon}    
+	\end{tabular}
+\end{frame}
+
+%TODO Tias: add Flanders Make example in style of Doctor Rost above?
+\begin{frame}
+	\begin{example}[Scheduling aircraft assembly transports (Airbus)]
+		\begin{center}
+		  \includegraphics[height=35mm]{images/gantt}    
+		\end{center}
+		
+		\textbf{Constraints} to be \textbf{satisfied}:
+		\begin{enumerate}
+				\item Each task has a pre-determined duration and allowed time-window
+				\item Each task can only be handled by a subset of worker teams
+				\item Some tasks have \textit{precedence} relations (e.g. same aircraft)
+				\item \dots
+		\end{enumerate}
+		
+		\textbf{Objective function} to be \textbf{minimised}: \\
+		Minimize number of teams needed, and the workload balance between teams.
+	\end{example}
+\end{frame}
+
+\begin{frame}{Applications in Manufacturing}
   \begin{tabular}{CC}
-    \structured{Demand vs capacity} \newline
-    \includegraphics[height=25mm]{images/routes}
+  	\structured{Transporting aircraft parts} \newline
+  	\includegraphics[height=30mm]{images/gantt}
     &
-    \structured{Airspace sectorisation} \newline
-    \includegraphics[height=25mm]{images/sectorLondon}    
+    \structured{Timetabling} \newline
+    \includegraphics[height=30mm]{images/timetable}
     \\[+8mm]
-    \structured{Contingency planning} \newline\newline
-    \tiny
-    \begin{tabular}{|l|c|c|}
-      \hline
-      Flow & Time Span & Hourly Rate \\
-      \hline
-      From: Arlanda   & 00:00 -- 09:00 & 3 \\
-      To: west, south & 09:00 -- 18:00 & 5 \\
-                      & 18:00 -- 24:00 & 2 \\
-      \hline
-      From: Arlanda   & 00:00 -- 12:00 & 4 \\
-      To: east, north & 12:00 -- 24:00 & 3 \\
-      \hline
-      \dots & \dots & \dots \\
-      \hline
-    \end{tabular}
-    &
-    \structured{Workload balancing} \newline
-    \includegraphics[height=25mm]{images/atm}
-  \end{tabular}
-\end{frame}
-
-\begin{frame}
-  \begin{example}[Air-traffic demand-capacity balancing]
-    Reroute flights, in height and speed, so as to balance the
-    workload of air traffic controllers in a multi-sector airspace:
-    \vfill
-    \begin{center}
-      \includegraphics[height=58mm]{images/routes}
-    \end{center}
-  \end{example}
-\end{frame}
-
-\begin{frame}
-  \begin{example}[Airspace sectorisation]
-    \begin{tabular}{p{60mm}p{60mm}}
-      \structured{Given} an airspace split into $c$ cells,
-      a targeted number $s$ of sectors, and~flight schedules. &
-      \structured{Find} a colouring of the $c$ cells into~$s$
-      connected convex sectors, with minimal imbalance of the
-      workloads of their air traffic controllers. \\
-      \includegraphics[height=40mm]{images/hexLondon} \hfill & 
-      \includegraphics[height=40mm]{images/sectorLondon}
-    \end{tabular}
-    \\ There are $s^c$ possible colourings, but very few optimally
-    satisfy the constraints: is \alert{intelligent} search necessary?
-  \end{example}
-\end{frame}
-
-\begin{frame}{Applications in Biology and Medicine}
-  \begin{tabular}{CC}
-    \structured{Phylogenetic supertree} \newline
-    \includegraphics[height=28mm]{images/seabirds}
-    &
-    \structured{Haplotype inference} \newline
-    \includegraphics[height=25mm]{images/genotype-haplotype}
-    \\[+8mm]
-    \structured{Medical image analysis} \newline
-    \includegraphics[width=50mm]{images/medical}
-    &
-    \structured{Doctor rostering}\invisible{gy} \newline
-    \includegraphics[width=50mm]{images/physicians}
-  \end{tabular}
-\end{frame}
-
-\begin{frame}
-  \begin{example}[Given several phylogentic trees, what supertree is maximally consistent with shared species in the trees?]
-    \centering
-    \includegraphics[width=100mm]{images/seabirds.pdf}
-  \end{example}
-\end{frame}
-
-\begin{frame}
-  \begin{example}[Haplotype inference by pure parsimony]
-    \structured{Given} $n$ child genotypes, with homo- and
-    heterozygous sites:
-    \begin{center} \footnotesize
-      \begin{tabular}{|G|G|G|G|G|G|}
-        \hline
-        \multicolumn{6}{|c|}{$\cdots$} \tabularnewline \hline
-        A & \blue{C} / \red{G} & T & C & \blue{A} / \red{T} & C \tabularnewline \hline
-        \multicolumn{6}{|c|}{$\cdots$} \tabularnewline \hline
-        A / T & G & T & C / G & A & C  \tabularnewline \hline
-        \multicolumn{6}{|c|}{$\cdots$} \tabularnewline \hline
-      \end{tabular}
-    \end{center}
-    \structured{find} a minimal set of (at most $2 \cdot n$) parent
-    haplotypes:
-    \begin{center} \footnotesize
-      \begin{tabular}{|c|c|c|c|c|c|}
-        \hline
-        \multicolumn{6}{|c|}{$\cdots$} \\ \hline
-        A & \blue{C} & T & C & \red{T} & C \\ \hline
-        \multicolumn{6}{|c|}{$\cdots$} \\ \hline
-        A & \red{G} & T & C & \blue{A} & C \\ \hline
-        \multicolumn{6}{|c|}{$\cdots$} \\ \hline
-        T & G & T & G & A & C          \\ \hline
-        \multicolumn{6}{|c|}{$\cdots$} \\ \hline
-      \end{tabular}
-    \end{center}
-    \structured{so that} each given genotype conflates (is the merge of) 2 found
-    haplotypes.
-  \end{example}
-\end{frame}
-
-\begin{frame}{Applications in Programming and Testing}
-  \begin{tabular}{CC}
     \structured{Robot programming} \newline
-    \includegraphics[width=50mm]{images/ABB-FRIDA}
-    &
-    \structured{Sensor-net configuration} \newline
-    \includegraphics[width=50mm]{images/WSN}
-    \\[+8mm]
-    \structured{Compiler design} \newline
-    \includegraphics[height=30mm]{images/instruction-scheduling}
+    \includegraphics[height=20mm]{images/ABB-FRIDA}
     &
     \structured{Base-station testing}
-    \includegraphics[height=30mm]{images/baseStation}
+    \includegraphics[height=20mm]{images/baseStation}
   \end{tabular}
 \end{frame}
-
-\begin{frame}{Other Application Areas}
-  \begin{tabular}{CC}
-    \structured{School timetabling} \newline
-    \includegraphics[height=30mm]{images/timetable}
-    &
-    \structured{Sports tournament design} \newline
-    \includegraphics[height=5mm]{images/SEH} \newline
-    \includegraphics[height=25mm]{images/handball}
-    \\[+8mm]
-    \structured{Security: SQL injection} \newline
-    \includegraphics[height=24mm]{images/sqlinjection.png}
-    &
-    \structured{Container packing} \newline
-    \includegraphics[height=27mm]{images/binPacking}
-    % &
-    % \structured{Financial designs} \newline
-    % \includegraphics[height=27mm]{images/WallStreet}
-  \end{tabular}
-\end{frame}
-
-
-\section{Search and constraint solving paradigms}
 
 \begin{frame}
-  Let's reconsider: 
-  \begin{example}[Agricultural experiment design]
-    \begin{table} \small
-      \begin{tabular}{r|c|c|c|c|c|c|c|}
-        \multicolumn{1}{r}{} & \multicolumn{1}{c}{\BlkOne}
-        & \multicolumn{1}{c}{\BlkTwo} & \multicolumn{1}{c}{\BlkThree}
-        & \multicolumn{1}{c}{\BlkFour} & \multicolumn{1}{c}{\BlkFive}
-        & \multicolumn{1}{c}{\BlkSix} & \multicolumn{1}{c}{\BlkSeven} \\
-        \cline{2-8}
-        \VarOne   & {\tick}{} & {\tick}{} & {\tick}{} & {--}{} & {--}{} & {--}{} & {--}{} \\ \cline{2-8}
-        \VarTwo   & {\tick}{} & {--}{} & {--}{} & {\tick}{} & {\tick}{} & {--}{} & {--}{} \\ \cline{2-8}
-        \VarThree & {\tick}{} & {--}{} & {--}{} & {--}{} & {--}{} & {\tick}{} & {\tick}{} \\ \cline{2-8}
-        \VarFour  & {--}{} & {\tick}{} & {--}{} & {\tick}{} & {--}{} & {\tick}{} & {--}{} \\ \cline{2-8}
-        \VarFive  & {--}{} & {\tick}{} & {--}{} & {--}{} & {\tick}{} & {--}{} & {\tick}{} \\ \cline{2-8}
-        \VarSix   & {--}{} & {--}{} & {\tick}{} & {\tick}{} & {--}{} & {--}{} & {\tick}{} \\ \cline{2-8}
-        \VarSeven & {--}{} & {--}{} & {\tick}{} & {--}{} & {\tick}{} & {\tick}{} & {--}{} \\
-
-        \cline{2-8}
-      \end{tabular}
-    \end{table}
-    \textbf{Constraints} to be \textbf{satisfied}:
-    \begin{enumerate}
-      \item Equal \VarSem\ size: Every \Variety\ is \VarBlk\ 3 \Block s.
-      \item Equal \BlkSem\ load: Every \Block\ \BlkVar\ 3 \Variety s.
-      \item Balance: Every \Variety\ pair is \VarBlk\ 1 common \Block.
-    \end{enumerate}
-    \textbf{Instance}: $7$ \Block s, $7$ \Variety s, $3$ \Variety
-    s/\Block, $3$ \Block s/\Variety, balance~$1$.
-  \end{example}
-
-  Could you compute a solution for 50 grains and 20 plots? for 1000 grains?
+	
+	\alert{Combinatorial optimization problems are everywhere!} \vfill
+	
+	\defined{Combinatorial} = finding the best \textit{combination} of objects from a finite set of possibilities.\vfill
+		
+	We typically categorize problems by their \textbf{structural nature}, for example:
+	{\small
+	\begin{itemize}\setlength{\itemsep}{0em} % extra vertical space between items
+		\item \defined{Assignment problems:} assign objects to fixed slots \\
+		      \textit{(doctor rostering, haplotype inference, base-station testing)}
+		\item \defined{Scheduling problems:} assign objects freely in time \\
+		      \textit{(transport scheduling, robot programming)}
+		\item \defined{Packing problems:} assign objects in 2D or 3D space \\
+		      \textit{(bin packing, container packing, carpet cutting)}
+		\item \defined{Routing problems:} enforce graph properties like cycles, connectivity \\
+		      \textit{(vehicle routing, waste collection, traffic control sectorisation)}
+	\end{itemize}
+    }
 \end{frame}
 
-\begin{frame}{P $\overset{?}{=}$ NP \hfill (Cook, 1971; Levin, 1973)}
-  This is one of the seven
-  \href{https://www.claymath.org/millennium/p-vs-np}{Millennium Prize}
-  problems of the Clay Mathematics Institute (Massachusetts, USA),
-  each worth 1~million~US\$. \vfill
-  
+
+\section{Why are these problems hard?}
+
+
+\begin{frame}
+	Let's reconsider: 
+	\begin{example}[From: Steven S. Skiena's The Algorithm Design Manual]
+		\small
+		Imagine you are a highly-in-
+		demand actor, who has been presented with offers to star in n different movie
+		projects under development. Each offer comes specified with the first and last day
+		of filming. To take the job, you must commit to being available throughout this
+		entire period. Thus, you cannot simultaneously accept two jobs whose intervals
+		overlap.
+		
+		$ $
+		
+		For an artist such as yourself, the criteria for job acceptance is clear: you want
+		to make as much money as possible. Because each of these films pays the same fee
+		per film, this implies you seek the largest possible set of jobs (intervals) such that no two of them conflict with each other.
+		
+		\begin{table}[h!]
+			\centering
+			\tiny
+			\begin{tabular}{| m{5cm} | m{2cm} | m{2cm} |}
+				\hline
+				\textbf{Title} & \textbf{Start} & \textbf{End} \\
+				\hline
+				... & ... & ... \\
+				\hline
+			\end{tabular}
+		\end{table}
+	\end{example}
+
+	Could you find a solution for 50 movies? For 1000s of movies across 100 actors?
+\end{frame}
+
+
+\begin{frame}{Finding solutions with exhaustive search}
+	
+	\vspace*{-1em} % move content up
+	\begin{center}
+		\scalebox{0.5}{%
+			\begin{tikzpicture}[
+				grow=down,
+				level distance=1.2cm,
+				level 1/.style={sibling distance=32mm},
+				level 2/.style={sibling distance=16mm},
+				level 3/.style={sibling distance=8mm}, % smaller spacing for third level
+				every node/.style={circle,draw,minimum size=6mm,inner sep=0pt}
+				]
+				% root (circled)
+				\node (root) {}
+				child { node (L) {}
+					child { node (L1) {}
+						child { node (L11) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (L12) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,left=-1px,font=\tiny]{Yes}
+					}
+					child { node (L2) {}
+						child { node (L21) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (L22) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,right=-2px,font=\tiny]{No}
+					}
+					edge from parent node[draw=none,left=-1px,font=\tiny]{Yes}
+				}
+				child { node (R) {}
+					child { node (R1) {}
+						child { node (R11) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (R12) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,left=-1px,font=\tiny]{Yes}
+					}
+					child { node (R2) {}
+						child { node (R21) {} edge from parent node[draw=none,left=-1px,font=\tiny]{Yes} }
+						child { node (R22) {} edge from parent node[draw=none,right=-2px,font=\tiny]{No} }
+						edge from parent node[draw=none,right=-2px,font=\tiny]{No}
+					}
+					edge from parent node[draw=none,right=-2px,font=\tiny]{No}
+				};
+				
+				% dots directly under each leaf (third layer)
+				%\foreach \x in {L11,L12,L21,L22,R11,R12,R21,R22}
+				%\node[draw=none,below=6pt of \x] {$\vdots$};
+				% small downward-pointing triangles directly under each leaf
+				\foreach \x in {L11,L12,L21,L22,R11,R12,R21,R22}
+				\draw[line width=0.2pt] 
+				(\x.south) ++(0,-0.1) -- ++(-3mm,-12mm) -- ++(6mm,0) -- cycle;
+				
+			\end{tikzpicture}
+		}
+	\end{center}
+	\vspace*{-1em} % move content up
+	
+	\begin{itemize}
+		\item input = 50 actors and 1000 movies, is $2^{50*1000}$ possible solutions...
+		\item Search requires a worst-case \textbf{exponential} number of options to explore
+	\end{itemize}\vfill
+	
+	\defined{Exponential:} running time grows exponentially with input size $n$, \\
+	\qquad $T(n) \sim c^{n}$ for some constant $c > 1$; \qquad big-oh notation: $\Oh{c^\mathbf{n}}$
+	
+	\defined{Polynomial:} running time is bounded by a polynomial function of input size $n$, \\
+	\qquad $T(n) \leq c*n^x$ for some constant $c > 0$ and $x \geq 0$; \qquad big-oh notation: $\Oh{\mathbf{n}^x}$ \vfill
+	
+	Does there exist a \textbf{polynomial} algorithm for combinatorial optimisation problems?
+	
+\end{frame}
+
+
+\begin{frame}{Limits of computation: P $\overset{?}{=}$ NP \hfill (Cook, 1971; Levin, 1973)}
   Informally:
   \begin{itemize}
     \item P = class of problems that need \alert{no} search to be solved \\
       NP = class of problems that \alert{might} need search to solve 
-    \item P = class of problems with easy-to-\alert{compute} solutions \\
-      NP = class of problems with easy-to-\alert{check} solutions
+    \item P = class of problems with easy-to-\alert{compute} solutions (polynomial time) \\
+      NP = class of problems with easy-to-\alert{check} solutions  (polynomial \textit{check})
   \end{itemize}
   Thus: Can search always be avoided (P $=$ NP), \\ or is search
   sometimes necessary (P $\neq$ NP)? \vfill
+
+  \pause
+  This is one of the seven
+  \href{https://www.claymath.org/millennium/p-vs-np}{Millennium Prize}
+  problems of the Clay Mathematics Institute (Massachusetts, USA),
+  each worth 1~million~US\$. \vfill
 
   Problems that are solvable in polynomial time (in the input size)
   are considered \defined{tractable}, aka \defined{easy}. \\ Problems
@@ -451,53 +561,56 @@
   aka \defined{hard}.
 \end{frame}
 
-\begin{frame}[label={longest}]{NP Completeness: Examples}
+\begin{frame}{Examples of NP problems}
   Given a digraph $(V,E)$:
+  \begin{examples}
+  	\begin{itemize}
+  		\item Finding an \defined{Euler tour} (which visits each
+  		\emph{edge} once) takes  $\Oh{E}$ time \\ and is thus in P. 
+  		\item Determining the existence of a \defined{Hamiltonian cycle}
+  		(which visits each \emph{vertex} once) is in NP (best known: $\Oh{1.657^n}$).
+  	\end{itemize}
+  \end{examples}
   \begin{examples}
     \begin{itemize}
     \item Finding a \defined{shortest path} takes 
       $\Oh{V \cdot E}$ time and is thus in P. 
     \item Determining the existence of a simple path (which has
       distinct vertices), from a given single source, that has
-      \emph{at least} a given number $\ell$ of edges \\ is
-      NP-complete.  Hence finding a \defined{longest path}
+      \emph{at least} a given number $\ell$ of edges is NP.  
+      Hence finding a \defined{longest path}
       seems hard: \\ increase $\ell$ starting from a trivial lower
       bound, until answer is `no'.
     \end{itemize}
   \end{examples} 
-  \begin{examples}
-    \begin{itemize}
-    \item Finding an \defined{Euler tour} (which visits each
-      \emph{edge} once) takes  $\Oh{E}$ time \\ and is thus in P. 
-    \item Determining the existence of a \defined{Hamiltonian cycle}
-      (which visits each \emph{vertex} once) is NP-complete.
-    \end{itemize}
-  \end{examples}
 \end{frame}
 
-\begin{frame}{NP Completeness: More Examples}
+\begin{frame}{More examples of NP problems}
   \begin{examples}
     \begin{itemize}
       \item \defined{$n$-SAT}: Determining the satisfiability of a
         conjunction of disjunctions of~$n$~Boolean literals is in P for
-        $n=2$  but NP-complete for $n=3$. 
+        $n=2$ but in NP for $n=3$. 
       \item \defined{SAT}: Determining the satisfiability of a formula
-        over Boolean literals is NP-complete. 
+        over Boolean literals is in NP. 
       \item \defined{Clique}: Determining the existence of a clique
-        (complete subgraph) of a given size in a graph is NP-complete.
+        (complete subgraph) of a given size in a graph is in NP.
         
       \item \defined{Vertex Cover}: Determining the existence of a
         vertex cover (a vertex subset with at least one endpoint for all
-        edges) of a given size in a graph is NP-complete. 
+        edges) of a given size in a graph is in NP. 
       \item \defined{Subset Sum}: Determining the existence of a subset,
-        of a given set, that has a given sum is NP-complete.
+        of a given set, that has a given sum is in NP.
     \end{itemize}
   \end{examples}
 \end{frame}
 
 \begin{frame}
-  Search spaces are often larger than the universe! \vfill
-  \includegraphics[height=50mm]{images/burningLaptop} \\
+  Search spaces are often larger than the number of particles in the universe!
+  \begin{center}
+  	\includegraphics[height=50mm]{images/burningLaptop}
+  \end{center}
+  
   Many important real-life problems are NP-hard or worse: their
   real-life instances can only be solved exactly and fast enough by
   \alert{intelligent} search, unless $\text{P} =
@@ -573,59 +686,10 @@
   The largest instance solved exactly, in $136$ CPU years in 2006, has $n=85900$.
 \end{frame}
 
-\begin{frame}
-  A \defined{declarative problem solving paradigm} offers languages, methods, and tools for: \vfill
-  \begin{itemize}
-    \item[what:] \textbf{Modelling} combinatorial problems in a \alert{declarative} language.
-  \end{itemize}\vfill
-  and / or \vfill
-  \begin{itemize}
-    \item[how:] \textbf{Solving} combinatorial problems \inference{intelli}\relaxation{gently}: \vfill
-    \begin{itemize}
-      \item \search{Search}: Explore the space of possible assignments. \vfill
-      \item \inference{Inference}: Reduce the space to feasible (partial) assignments. \vfill
-      \item \relaxation{Relaxation}: Exploit solutions to problems with fewer or simplified constraints. \vfill
-    \end{itemize}
-  \end{itemize}
-  A \defined{solver} is a program that takes a model and data as input \\
-  and tries to solve that problem instance.\vfill
-  \textit{The ideas in this course extend to continuous optimisation, stochastic optimisation, planning and more}
-\end{frame}
-
-\begin{frame}
-  \begin{examples}[Declarative problem solving paradigms]
-    General-purpose solvers, taking model and data as input:
-    \begin{itemize}
-    \item SAT: Boolean satisfiability
-    \item PB: Pseudo-Boolean Optimisation (0-1 linear constraints)
-    \item SMT/OMT: SAT (resp.\ Optimisation) Modulo Theories
-    \item MIP: Mixed Integer (Linear) Programming
-    \item CP: Constraint programming
-    \item \dots
-    \end{itemize}
-  \end{examples}
-  \begin{examples}[Solving methodologies]
-    Methodologies (typically without separated concept of 'model' and 'solver'):
-    \begin{itemize}
-    \item Dynamic programming (DP)
-    \item Greedy and Approximation algorithms
-    \item Local search (LS)
-    \item \dots
-    \end{itemize}
-  \end{examples}
-\end{frame}
-
-\begin{frame}
-  \includegraphics[height=70mm]{images/encode_search_decode.png}
-\end{frame}
-
-\begin{frame}
-  \includegraphics[height=70mm]{images/encode_search_decode_example.png}
-\end{frame}
-
 
 \section{What: Declarative Modelling}
 
+\iffalse 'refined' rather hand-wavy... skip for now
 \begin{frame}{What vs How}
   \begin{example}
     Consider the \textbf{problem} of sorting an array $A$ of $n$
@@ -647,36 +711,84 @@
   \end{example}
 
   A \defined{specification} is a \textbf{declarative} description of \textbf{what} problem is to be solved.  \\
-  An \defined{algorithm} is an \textbf{imperative} description of \textbf{how} to solve the problem (fast).
+  An \defined{algorithm} is an \textbf{imperative} description of \textbf{how} to solve the problem.
+\end{frame}
+\fi
+
+\begin{frame}{Modelling (declarative) vs Programming (imperative)}
+	\begin{center}
+		\begin{tikzpicture}
+			[->,>=stealth',level/.style={level distance=20mm,sibling distance=50mm}]
+			\tikzset{nod/.style = {font=\bfseries}}
+			\node[nod, align=center](problem){Problem \\ \normalfont\textit{(fuzzy concept)}}
+			child{
+				node[nod, align=center](def){Problem Definition \\ \normalfont\textit{(free form, unambiguous)}}
+				child{
+					node[nod, align=center]{Model \\ \normalfont\textit{(formal specification)}}
+					child{
+						node[nod]{program}
+						edge from parent node[left] {automatic!}
+					}
+					edge from parent node[above left, yshift=-8pt] {\underline{what?} }
+				}
+				child{
+					node[nod, align=center]{Algorithm \\ \normalfont\textit{(pseudo-code)}}
+					child{
+						node[nod]{program}
+						edge from parent node[right] {manual!}
+					}
+					edge from parent node[above right, yshift=-8pt] {\underline{how?} }
+				}
+			};
+		\end{tikzpicture}
+	\end{center}
 \end{frame}
 
-\begin{frame}{Modelling vs Programming}
-  \begin{center}
-    \begin{tikzpicture}
-      [->,>=stealth',level/.style={level distance=20mm,sibling distance=50mm}]
-      \tikzset{nod/.style = {font=\bfseries}}
-      \node[nod]{problem}
-      child{
-        node[nod]{specification}
-        child{
-          node[nod]{model}
-          child{
-            node[nod]{program}
-            edge from parent node[left] {automatic!}
-          }
-          edge from parent node[above left] {what? (declarative)}
-        }
-        child{
-          node[nod]{algorithm}
-          child{
-            node[nod]{program}
-            edge from parent node[right] {manual!}
-          }
-          edge from parent node[above right] {how? (imperative)}
-        }
-      };
-    \end{tikzpicture}
-  \end{center}
+\begin{frame}
+	A \defined{declarative problem solving paradigm} offers languages, methods, and tools for: \vfill
+	\begin{itemize}
+		\item[what:] \textbf{Modelling} combinatorial problems in a \alert{declarative} language.
+	\end{itemize}\vfill
+	and / or \vfill
+	\begin{itemize}
+		\item[how:] \textbf{Solving} combinatorial problems \textbf{intelligently}: \vfill
+		\begin{itemize}
+			\item \search{Search}: Explore the space of possible assignments. \vfill
+			\item \inference{Inference}: Reduce the space to feasible (partial) assignments. \vfill
+			%\item \relaxation{Relaxation}: Exploit solutions to problems with fewer or simplified constraints. \vfill
+		\end{itemize}
+	\end{itemize}
+	A \defined{solver} is a program that takes a model and data as input \\
+	and tries to solve that problem instance.\vfill
+	\textit{The ideas in this course extend to continuous optimisation, stochastic optimisation, planning and more}
+\end{frame}
+
+\begin{frame}
+	\begin{examples}[Declarative problem solving paradigms]
+		General-purpose solvers, taking model and data as input:
+		\begin{itemize}
+			\item SAT: Boolean satisfiability
+			\item PB: Pseudo-Boolean Optimisation (0-1 linear constraints)
+			\item SMT/OMT: SAT (resp.\ Optimisation) Modulo Theories
+			\item MIP: Mixed Integer (Linear) Programming
+			\item CP: Constraint programming
+			\item \dots
+		\end{itemize}
+	\end{examples}
+	\begin{examples}[Non-declarative solving paradigms]
+		Methodologies (e.g. typically without separated concept of 'model' and 'solver'):
+		\begin{itemize}
+			\item Dynamic programming (DP)
+			\item Greedy and Approximation algorithms
+			\item Local search (LS)
+			\item \dots
+		\end{itemize}
+	\end{examples}
+\end{frame}
+
+\begin{frame}{Declarative Model + Solve paradigm}
+	\centering
+	\includegraphics[width=\textwidth]{images/model_solve}
 \end{frame}
 
 \begin{frame}
@@ -778,15 +890,15 @@
   \begin{example}[Sudoku CP model]
     \footnotesize
     \vspace{-1em}
-    \begin{align}
+    \begin{align*}
       &G_{ij} \in \{1, 2, \dots, 9\}, \quad &&\forall i, j \in \{1, 2, \dots, 9\} \\ %\text{where } x_{i,j} \text{ represents the value in the cell at row } i \text{ and column } j \\
       &\cons{AllDifferent}{G_{i1}, G_{i2}, \dots, G_{i9}}, \quad &&\forall i \in \{1, 2, \dots, 9\} \\ %&\text{For each row } i, \quad \text{the values are all different:} \\
       &\cons{AllDifferent}{G_{1j}, G_{2j}, \dots, G_{9j}}, \quad &&\forall j \in \{1, 2, \dots, 9\} \\ 
       &\cons{AllDifferent}{G_{p, q}, ~~~G_{p, q+1}, ~~~G_{p, q+2}}, && \notag \\
-      &\qquad \quad \quad \quad ~G_{p+1, q}, G_{p+1, q+1}, G_{p+1, q+2}, && \notag \\
-      &\qquad \quad \quad \quad ~G_{p+2, q}, G_{p+2, q+1}, G_{p+2, q+2}), \quad &&\forall p, q \in \{1, 4, 7\} \\ 
+      &\qquad \qquad \qquad \quad ~G_{p+1, q}, G_{p+1, q+1}, G_{p+1, q+2}, && \notag \\
+      &\qquad \qquad \qquad \quad ~G_{p+2, q}, G_{p+2, q+1}, G_{p+2, q+2}), \quad &&\forall p, q \in \{1, 4, 7\} \\ 
       &G_{ij} = \mbox{given}_{ij}, \quad &&\text{if a value } \mbox{given}_{ij} \text{ is given} 
-    \end{align}
+    \end{align*}
   \end{example}
 \end{frame}
 
@@ -871,35 +983,98 @@
   \end{example}
 \end{frame}
 
+\begin{frame}{Fun with sudoku's}
+	Sudoku Assistant: \url{https://visualsudoku.cs.kuleuven.be}
+	\vfill
+	
+	\begin{center}
+		\includegraphics[height=14em]{images/sudoku_assistant}
+	\end{center}
+	\vspace{-1em}
+	
+	Solving is instant and generating hints is real-time, both use CP solvers. \\
+	The ML predictions (vision transformer) are the slowest.
+\end{frame}
+
 \begin{frame}
-  \begin{example}[Agricultural experiment design, AED]
-    \begin{table} \small
-      \begin{tabular}{r|c|c|c|c|c|c|c|}
-        \multicolumn{1}{r}{} & \multicolumn{1}{c}{\BlkOne}
-        & \multicolumn{1}{c}{\BlkTwo} & \multicolumn{1}{c}{\BlkThree}
-        & \multicolumn{1}{c}{\BlkFour} & \multicolumn{1}{c}{\BlkFive}
-        & \multicolumn{1}{c}{\BlkSix} & \multicolumn{1}{c}{\BlkSeven} \\
-        \cline{2-8}
-        \VarOne   &\alt<2>{1}{\tick}&\alt<2>{1}{\tick}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{0}{--} \\ \cline{2-8}
-        \VarTwo   &\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{0}{--} \\ \cline{2-8}
-        \VarThree &\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{1}{\tick} \\ \cline{2-8}
-        \VarFour  &\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{0}{--} \\ \cline{2-8}
-        \VarFive  &\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{1}{\tick} \\ \cline{2-8}
-        \VarSix   &\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{1}{\tick} \\ \cline{2-8}
-        \VarSeven &\alt<2>{0}{--}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{0}{--}&\alt<2>{1}{\tick}&\alt<2>{1}{\tick}&\alt<2>{0}{--} \\
-        \cline{2-8}
-      \end{tabular}
-    \end{table}
-    \textbf{Constraints} to be \textbf{satisfied}:
-    \begin{enumerate}
-      \item Equal \BlkSem\ load: Every \Block\ \BlkVar\ 3 \Variety s.
-      \item Equal \VarSem\ size: Every \Variety\ is \VarBlk\ 3 \Block s.
-      \item Balance: Every \Variety\ pair is \VarBlk\ 1 common \Block.
-    \end{enumerate}
-    \textbf{Instance}: $7$ \Block s, $7$ \Variety s, $3$ \Variety
-    s/\Block, $3$ \Block s/\Variety, balance~$1$.
-  \end{example}
-  \alt<2>{General problem: \defined{balanced incomplete block design} (\defined{BIBD})}{}
+	\begin{example}[Agricultural experiment design]
+		\begin{table} \small
+			\begin{tabular}{r|c|c|c|c|c|c|c|}
+				\multicolumn{1}{r}{} & \multicolumn{1}{c}{\BlkOne}
+				& \multicolumn{1}{c}{\BlkTwo} & \multicolumn{1}{c}{\BlkThree}
+				& \multicolumn{1}{c}{\BlkFour} & \multicolumn{1}{c}{\BlkFive}
+				& \multicolumn{1}{c}{\BlkSix} & \multicolumn{1}{c}{\BlkSeven} \\
+				\cline{2-8}
+				\VarOne   & {} & {} & {} & {} & {} & {} & {} \\ \cline{2-8}
+				\VarTwo   & {} & {} & {} & {} & {} & {} & {} \\ \cline{2-8}
+				\VarThree & {} & {} & {} & {} & {} & {} & {} \\ \cline{2-8}
+				\VarFour  & {} & {} & {} & {} & {} & {} & {} \\ \cline{2-8}
+				\VarFive  & {} & {} & {} & {} & {} & {} & {} \\ \cline{2-8}
+				\VarSix   & {} & {} & {} & {} & {} & {} & {} \\ \cline{2-8}
+				\VarSeven & {} & {} & {} & {} & {} & {} & {} \\
+				\cline{2-8}
+			\end{tabular}
+		\end{table}
+		\textbf{Constraints} to be \textbf{satisfied}:
+		\begin{enumerate}
+			\item Equal \VarSem\ size: Every \Variety\ is \VarBlk\ 3 \Block s.
+			\item Equal \BlkSem\ load: Every \Block\ \BlkVar\ 3 \Variety s.
+			\item Balance: Every \Variety\ pair is \VarBlk\ 1 common \Block.
+		\end{enumerate}
+	\end{example}
+	\textbf{Instance}: $7$ \Block s, $7$ \Variety s, $3$ \Variety
+	s/\Block, $3$ \Block s/\Variety, balance~$1$.
+\end{frame}
+
+\begin{frame}{Parameterized Constraint Models}
+	
+	A model, e.g. a constraint specification, is typically written down as a parameterized constraint model.
+	\vfill
+	
+	\begin{itemize}
+		\item A \defined{parameterized constraint model} has uninstantiated parameters. 
+		For example the number of grains and plots in the agricultural experiment design, or the given cells hints in a sudoku. \vfill
+		
+		\item The parameterized constraint model represents a \textit{class} of problems.\vfill
+		
+		\item The uninstantiated parameters correspond to the input \defined{data}.\vfill
+		
+		\item An \defined{instance} is the combination of data and a parametrized constraint model, the instance is the result of instantiating the parameters, and in turn all the decision variables and constraints, with the data. 
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\begin{example}[Agricultural experiment design]
+		\begin{table} \small
+			\begin{tabular}{r|c|c|c|c|c|c|c|}
+				\multicolumn{1}{r}{} & \multicolumn{1}{c}{\BlkOne}
+				& \multicolumn{1}{c}{\BlkTwo} & \multicolumn{1}{c}{\BlkThree}
+				& \multicolumn{1}{c}{\BlkFour} & \multicolumn{1}{c}{\BlkFive}
+				& \multicolumn{1}{c}{\BlkSix} & \multicolumn{1}{c}{\BlkSeven} \\
+				\cline{2-8}
+				\VarOne   & {\tick}{} & {\tick}{} & {\tick}{} & {--}{} & {--}{} & {--}{} & {--}{} \\ \cline{2-8}
+				\VarTwo   & {\tick}{} & {--}{} & {--}{} & {\tick}{} & {\tick}{} & {--}{} & {--}{} \\ \cline{2-8}
+				\VarThree & {\tick}{} & {--}{} & {--}{} & {--}{} & {--}{} & {\tick}{} & {\tick}{} \\ \cline{2-8}
+				\VarFour  & {--}{} & {\tick}{} & {--}{} & {\tick}{} & {--}{} & {\tick}{} & {--}{} \\ \cline{2-8}
+				\VarFive  & {--}{} & {\tick}{} & {--}{} & {--}{} & {\tick}{} & {--}{} & {\tick}{} \\ \cline{2-8}
+				\VarSix   & {--}{} & {--}{} & {\tick}{} & {\tick}{} & {--}{} & {--}{} & {\tick}{} \\ \cline{2-8}
+				\VarSeven & {--}{} & {--}{} & {\tick}{} & {--}{} & {\tick}{} & {\tick}{} & {--}{} \\
+				\cline{2-8}
+			\end{tabular}
+		\end{table}
+		\textbf{Constraints} to be \textbf{satisfied}:
+		\begin{enumerate}
+			\item Equal \VarSem\ size: Every \Variety\ is \VarBlk\ 3 \Block s.
+			\item Equal \BlkSem\ load: Every \Block\ \BlkVar\ 3 \Variety s.
+			\item Balance: Every \Variety\ pair is \VarBlk\ 1 common \Block.
+		\end{enumerate}
+	\end{example}
+	
+	\textbf{Instance}: $7$ \Block s, $7$ \Variety s, $3$ \Variety
+	s/\Block, $3$ \Block s/\Variety, balance~$1$. \vfill
+	
+	General problem: \defined{balanced incomplete block design} (\defined{BIBD})
 \end{frame}
 
 \begin{frame}
@@ -908,7 +1083,7 @@
   \begin{example}[BIBD \emph{integer} CP model]
     \footnotesize
     \vspace{-1em}
-    \begin{align}
+    \begin{align*}
       &v = 7, \quad b = 7, &&\mbox{Varieties, Blocks}\\
       &k = 3, \quad r = 3, \quad \lambda = 1, &&\mbox{sample size, block size, balance}\\
       \\
@@ -916,16 +1091,17 @@
       &\sum_{j=1}^b B_{ij} = k, \quad &&\forall i \in \{1, 2, \dots, v\}, \mbox{every row must add up to sample size}\\
       &\sum_{i=1}^v B_{ij} = r, \quad &&\forall j \in \{1, 2, \dots, b\}, \mbox{every columns must add up to block size}\\
       &\sum_{j=1}^b B_{ij} B_{i'j} = \lambda, \quad &&\forall i, i' \in \{1, 2, \dots, v\}, \, i \neq i'. \mbox{every distinct row, scalar product = balance}
-    \end{align}
+    \end{align*}
   \end{example}  
 \end{frame}
+
 
 \begin{flashcardcpmpy}
 \begin{frame}
   In a BIBD, the plots are called \defined{blocks} and the \Variety s are called \defined{varieties}:
 
   \begin{example}[BIBD \emph{integer} model in CPMpy]
-    \lstinputlisting[language=cpmpy,firstline=4,lastline=19]{models_cpmpy/T01_bibd.py}
+    \lstinputlisting[language=cpmpy,firstline=4,lastline=18]{models_cpmpy/T01_bibd.py}
   \end{example}  
 \end{frame}
 \end{flashcardcpmpy}
@@ -963,7 +1139,7 @@
 
 \begin{flashcardcpmpy}
 \begin{frame}[fragile]
-  Reconsider the model fragment:
+  Consider the model fragment:
   {\footnotesize
     \begin{lstlisting}[language=cpmpy,firstnumber=4]
     [cp.sum(row) == sampleSize for row in BIBD]\end{lstlisting}
@@ -1037,30 +1213,32 @@
   \end{example}
 
   \underline{Decision variables are a choice}: \\
-  we could model the same problem with one \textit{set} variable per grain.
+  we could model the same problem with one \textit{set} variable per grain variety.
 \end{frame}
 
 \begin{frame}
   \underline{Decision variables are a choice}: \\
   we could model the same problem with one \textit{set} variable per grain variety.\\
   
-\begin{example}[BIBD \emph{set} CP model]
-\footnotesize
-\vspace{-1em}
-\begin{align}
-&v = 7, \quad b = 7, &&\mbox{Varieties, Blocks} \\
-&k = 3, \quad r = 3, \quad \lambda = 1, &&\mbox{sample size, block size, balance} \\
-\\
-&\mathcal{B}_i \subseteq \{1, 2, \dots, b\}, \quad &&\forall i \in \{1, 2, \dots, v\}, \, \mbox{Set of blocks for each variety} \\
-&\sum_{i=1}^v [j \in \mathcal{B}_i] = r, \quad &&\forall j \in \{1, 2, \dots, b\}, \, \mbox{Each block contains exactly block-size varieties} \\
-&|\mathcal{B}_i| = k, \quad &&\forall i \in \{1, 2, \dots, v\}, \, \mbox{Each variety appears in exactly sample-size blocks} \\
-&|\mathcal{B}_i \cap \mathcal{B}_j| = \lambda, \quad &&\forall i, j \in \{1, 2, \dots, v\}, \, i \neq j, \, \mbox{balance between each pair of variaties}
-\end{align}
-\end{example}
+  \begin{example}[BIBD \emph{set} CP model]
+    \footnotesize
+    \vspace{-1em}
+    \begin{align*}
+      &v = 7, \quad b = 7, &&\mbox{Varieties, Blocks} \\
+      &k = 3, \quad r = 3, \quad \lambda = 1, &&\mbox{sample size, block size, balance} \\
+      \\
+      &\mathcal{B}_i \subseteq \{1, 2, \dots, b\}, \quad &&\forall i \in \{1, 2, \dots, v\}, \, \mbox{Set of blocks for each variety} \\
+      &\sum_{i=1}^v \Iverson{j \in \mathcal{B}_i} = r, \quad &&\forall j \in \{1, 2, \dots, b\}, \, \mbox{Each block contains exactly block-size varieties} \\
+      &|\mathcal{B}_i| = k, \quad &&\forall i \in \{1, 2, \dots, v\}, \, \mbox{Each variety appears in exactly sample-size blocks} \\
+      &|\mathcal{B}_i \cap \mathcal{B}_j| = \lambda, \quad &&\forall i, j \in \{1, 2, \dots, v\}, \, i \neq j, \, \mbox{balance between each pair of variaties}
+    \end{align*}
+  \end{example}
 
-$ $
+  \textit{Notation:} $\Iverson{C}$ is the Iverson bracket: $1$ if condition $C$ holds, and $0$ otherwise.
 
-\alert{Note}: not all modeling languages support \textit{set} decision variables. \\
+  $ $
+
+  \alert{Note}: not all modeling languages support \textit{set} decision variables. \\
 MiniZinc does, CPMpy does not.
 \end{frame}
 
@@ -1116,24 +1294,25 @@ MiniZinc does, CPMpy does not.
   \begin{example}[Doctor Shift Scheduling CP Model]
     \scriptsize
     \vspace{-1em}
-    \begin{align}
-      &R_{pd} \in \{0, 1, \dots, {\text{n\_shifts}}-1\}, \quad &&\forall p \in \{1, \dots, {\text{n\_doctors}}\}, \, d \in \{1, \dots, {\text{n\_days}}\} \\
+    \begin{align*}
+      &R_{pd} \in \{\text{Appt}, \text{Call}, \text{Oper}, \text{Free} \}, \quad &&\text{\tiny $\forall p \in \{1, \dots, {\text{n\_doctors}}\}, \, d \in \{1, \dots, {\text{n\_days}}\}$} \\
       %\\
       %&\text{where } R_{pd} = \text{Shift type for doctor } p \text{ on day } d, \\
       &\text{1. \#on-call doctors / day = 1: } 
-      \sum_{p=1}^{{\text{n\_doctors}}} [R_{pd} = \text{Call}] = 1, \quad &&\forall d \in \{1, \dots, {\text{n\_days}}\} \\
+      \sum_{p=1}^{{\text{n\_doctors}}} \Iverson{R_{pd} = \text{Call}} = 1, \quad &&\text{\tiny $\forall d \in \{1, \dots, {\text{n\_days}}\}$} \\
       &\text{2. \#operating doctors / weekday $<= 2$: } 
-      \sum_{p=1}^{{\text{n\_doctors}}} [R_{pd} = \text{Oper}] \leq 2, \quad &&\forall d \in \{1, \dots, {\text{n\_days}}\}, \, \text{if } d\mod 7 \leq 5 \\
+      \sum_{p=1}^{{\text{n\_doctors}}} \Iverson{R_{pd} = \text{Oper}} \leq 2, \quad &&\text{\tiny $\forall d \in \{1, \dots, {\text{n\_days}}\}, \, \text{if } d\mod 7 \in 1..5$} \\
       &\text{3. \#operating doctors / week $\geq 7$: } 
-      \sum_{p=1}^{{\text{n\_doctors}}}~\sum_{d=s}^{s+6} [R_{pd} = \text{Oper}] \geq 7, \quad &&\forall s \in \{1, \dots, {\text{n\_days}}\}, \, \text{if } d\mod 7 == 0 \\
+      \sum_{p=1}^{{\text{n\_doctors}}}~\sum_{d=s}^{s+6} \Iverson{R_{pd} = \text{Oper}} \geq 7, \quad &&\text{\tiny $\forall s \in \{1, \dots, {\text{n\_days}}\}, \, \text{if } s\mod 7 = 1$} \\
       &\text{4. \#appointed doctors / week $\geq 4$: }
-      \sum_{p=1}^{{\text{n\_doctors}}}~\sum_{d=s}^{s+6} [R_{pd} = \text{Appt}] \geq 4, \quad &&\forall s \in \{1, \dots, {\text{n\_days}}\}, \, \text{if } d\mod 7 == 0 \\
+      \sum_{p=1}^{{\text{n\_doctors}}}~\sum_{d=s}^{s+6} \Iverson{R_{pd} = \text{Appt}} \geq 4, \quad &&\text{\tiny $\forall s \in \{1, \dots, {\text{n\_days}}\}, \, \text{if } s\mod 7 = 1$} \\
       &\text{5. day off after operation: } 
-      [R_{pd} = \text{Oper}] \rightarrow [R_{p,d+1} = \text{Free}], \quad &&\forall p \in \{1, \dots, {\text{n\_doctors}}\}, \, d \in \{1, \dots, {\text{n\_days}}-1\} 
+      (R_{pd} = \text{Oper}) \rightarrow (R_{p,d+1} = \text{Free}), \quad &&\text{\tiny $\forall p \in \{1, \dots, {\text{n\_doctors}}\}, \, d \in \{1, \dots, {\text{n\_days}}-1\}$} 
       %&\text{6. Maximize nr free shifts on weekends:} \\
-      %&\max \sum_{s=1}^{n_{\text{days}}} \sum_{p=1}^{n_{\text{doctors}}} \mathbb{1}(R_{pd} = \text{Free}) \quad \text{for } d \in \{6, 7\} \\
-    \end{align}
+      %&\max \sum_{s:\, s\mod 7 = 1} \sum_{p=1}^{n_{\text{doctors}}} \sum_{d \in \{s+5,s+6\}} \Iverson{R_{pd} = \text{Free}} \\
+    \end{align*}
   \end{example}
+  \textit{Notation:} $\Iverson{C}$ is the Iverson bracket: $1$ if condition $C$ holds, and $0$ otherwise.
 \end{frame}
 
 \begin{flashcardcpmpy}
@@ -1167,25 +1346,26 @@ MiniZinc does, CPMpy does not.
 \end{frame}
 \end{flashcardminizinc}
 
+\ignore{
 \begin{frame}
   \begin{example}[Job allocation at minimal salary cost]
-    \structured{Given} $n\_jobs$ jobs and the salaries of work applicants $salary$, \\ 
+    \structured{Given} $n\_jobs$ jobs, $n\_appls$ applicants and the salaries of work applicants $salary$, \\ 
     \structured{Find} a work applicant for each job \\ 
-    \structured{Such that} some constraints (on the qualifications of the work applicants \\
-    ~~ for the jobs, on workload distribution, etc) are satisfied \\ 
+    \structured{Such that} each applicant does at most $k$ jobs\\ 
     ~~ and the total salary cost is minimal: 
 
     \small
     \vspace{-1em}
-    \begin{align}
-      &\text{salary}_a = \textit{...given value...} \quad && \forall a \in \{1, \ldots, \text{n\_apps}\} \\
-      &W_j \in \{1, \dots, {\text{n\_apps}}\}, \quad &&\forall j \in \{1, \dots, {\text{n\_jobs}}\} \\
+    \begin{align*}
+      &\text{salary}_a = \textit{...given value...} \quad && \forall a \in \{1, \ldots, \text{n\_appls}\} \\
+      & &&\\
+      &W_j \in \{1, \dots, {\text{n\_appls}}\}, \quad &&\forall j \in \{1, \dots, {\text{n\_jobs}}\} \\
       %&\quad \text{where } w_j \text{ represents the applicant assigned to job } j. \\
-      & \text{...constraints...}&& \\
+      & \sum_{j=1}^{n\_jobs} \Iverson{W_j = a} \leq k && \forall a \in \{1, \ldots, \text{n\_appls}\} \\
       & &&\\
       &\minimize \sum_{j=1}^{{\text{n\_jobs}}} \text{salary}_{W_j} && \textit{observe: indexing with a decision variable!}
       %&\text{where } \text{Salary} \text{ is the salary array indexed by } w_j. \\
-    \end{align}
+    \end{align*}
     \vspace{-1em}
   \end{example}
 \end{frame}
@@ -1199,13 +1379,13 @@ MiniZinc does, CPMpy does not.
     ~~ for the jobs, on workload distribution, etc) are satisfied \\ 
     ~~ and the total salary cost is minimal: 
 
-    \lstinputlisting[language=cpmpy,firstline=11,lastline=19]{models_cpmpy/T01_jobAlloc.py}
+    \lstinputlisting[language=cpmpy,firstline=11,lastline=20]{models_cpmpy/T01_jobAlloc.py}
     \vspace{-3mm}
   \end{example} \vfill
 
-  \textcolor{Melon}{Special power} of constraint programming languages: \\
-  ~~~~ Using a decision variable (\texttt{worker[j]}) as an index into an array (\texttt{salary[]}) \\
-  ~~~~ \textit{Internally: will use an 'Element' global constraint}
+  \textcolor{Melon}{Special power} of constraint programming languages: discrete integers: \\
+  ~~~~ Using a decision variable (\texttt{worker[j]}) to index into an array (\texttt{salary[]}) \\
+  ~~~~ \textit{Internally: will translate to an 'Element' global constraint}
 \end{frame}
 \end{flashcardcpmpy}
 \begin{flashcardminizinc}
@@ -1226,13 +1406,14 @@ MiniZinc does, CPMpy does not.
   ~~~~ Internally: will use an 'Element' global constraint
 \end{frame}
 \end{flashcardminizinc}
+}
 
 \begin{frame}
   \begin{example}[Traveling Salesperson Problem]
     \hspace{-0.5cm} % move the minipage 2cm to the left
     \begin{minipage}[c]{0.6\textwidth}
       \small\vspace{-1em}
-      \begin{align}
+      \begin{align*}
         &distance = \begin{bmatrix}
           0 & 85 & 162 & 231 \\
           85 & 0 & 98 & 128 \\
@@ -1240,13 +1421,13 @@ MiniZinc does, CPMpy does not.
           231 & 128 & 146 & 0
         \end{bmatrix} \\
         &n\_cities = 4 \\
-        &Next \in \{0, \dots, n\_cities-1\} \\
-        &\minimize \sum_{c=1}^{{\text{n\_cities}}} \text{distance}[c,Next_c] \\
+        &Next_c \in \{0, \dots, n\_cities-1\}, \quad \text{\tiny $\forall c \in \{0, \dots, n\_cities-1\}$} \\
+        &\minimize \sum_{c=0}^{{\text{n\_cities}}-1} \text{distance}[c,Next_c] \\
         \temporal<2>{}
                     {&\cons{AllDifferent}{Next}}
                     {&\cons{Circuit}{Next}} \\
         \vspace{-2em}
-      \end{align}
+      \end{align*}
     \end{minipage}
     % The things on the right
     \begin{minipage}[c]{0.3\textwidth}
@@ -1281,7 +1462,7 @@ MiniZinc does, CPMpy does not.
 
 \begin{flashcardcpmpy}
 \begin{frame}
-  \begin{example}[Traveling Salesperson Problem]
+  \begin{example}[Traveling Salesperson Problem (indexing offset 0)]
     \begin{minipage}[c]{0.55\textwidth}
       \lstinputlisting[language=cpmpy,firstline=3,lastline=16]{models_cpmpy/T01_tsp.py}
     \end{minipage}
@@ -1318,36 +1499,23 @@ MiniZinc does, CPMpy does not.
 
 \begin{frame}{Decision Variables, Parameters, and Identifiers} 
   \begin{itemize}
-    \item Decision variables and parameters in a model are concepts very different from programming variables in an imperative or object-oriented program. \vfill
+    \item Parameters and decision variables in a model are concepts different from programming variables in an imperative or object-oriented program. \vfill
+    
+    \item A \defined{parameter} in a model must be given a value, but only once: \\
+    we say that the parameter is \defined{instantiated}. \vfill
     
     \item A \defined{decision variable} in a model is like a variable in mathematics: \\
-          it is \emph{not} given a value in a model or a formula, and \\
-          its value is only fixed in a solution, if a solution exists. \vfill
+          it is \emph{not} given a value in a model, and \\
+          its value is only fixed in a solution (if a solution exists). \vfill
           
-    \item A \defined{parameter} in a model must be given a value, but only once: \\
-          we say that the parameter is \defined{instantiated}. \vfill
-          
-    \item A decision variable or parameter is referred to by an \defined{identifier} (a name like \texttt{BIBD}). \vfill
+    \item A parameter or decision variable is referred to by an \defined{identifier} (a name like \texttt{Given}, \texttt{Grid}, \texttt{Next}, ...). \vfill
     
-    \item An \defined{index identifier} in a universal quantification takes on all its designated values in turn. \\
-          Example: $\forall i \in \{1, 2, \dots, v\}$ where $i$ is an index identifier and $v$ is a parameter.
+    % 'index identifier' is a bit of a weird name, should be clear what quantification does?
+    %\item An \defined{index identifier} in a universal quantification takes on all its designated values in turn. \\
+    %      Example: $\forall i \in \{1, 2, \dots, v\}$ where $i$ is an index identifier and $v$ is a parameter.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Parameterised Constraint Models}
-
-A constraint model, e.g. a constraint specification, also written as simply \textit{model} in this course, is typically written down as a parameterised constraint model.
-\vfill
-
-  \begin{itemize}
-    \item A \defined{parameterized constraint model} has uninstantiated parameters. For example the sample size $k$ in BIBD's $\sum_{j=1}^b B_{ij} = k$ can be different for different problem instances. \vfill
-    % It represents a class of problems.
-
-    \item The parameters correspond to the input \defined{data}. For example the number of grains and plots, and $k$/sample size in the BIBD problem; or the stops and distance matrix in a vehicle routing problem.\vfill
-  
-    \item An \defined{instance} is the combination of data and a parametrized constraint model, the instance is the result of instantiating the parameters, and in turn all the decision variables and constraints, with the data. 
-  \end{itemize}
-\end{frame}
 
 \begin{frame}{Modelling Concepts (end)}
   \begin{itemize}
@@ -1363,8 +1531,8 @@ A constraint model, e.g. a constraint specification, also written as simply \tex
     \begin{itemize}
       \item find any satisfying solution
       \item find all satisfying solutions
-      \item find an optimal solutions
-      \item find all optimal solution
+      \item find an optimal solution
+      \item find all optimal solutions
       \item count the number of satisfying/optimal solutions
       \item prove that there is no solution
       \item find a minimal subset of unsatisfiable constraints
@@ -1373,21 +1541,49 @@ A constraint model, e.g. a constraint specification, also written as simply \tex
   \end{itemize}
 \end{frame}
 
-\begin{flashcardcpmpy}
-\begin{frame}{Constraint-Based Modelling}
-  \defined{CPMpy} is a Python-based constraint modelling
-  \alert{library} (\emph{not} a solver): \vfill
-  \begin{itemize}
-    \item Decision variables are n-dimensional \textbf{numpy arrays}, and you can specify constraints using standard Python and NumPy functions.\\
-          only \textit{Boolean} and \textit{integer} decision variables are possible. \vfill
-
-    \item Standard Python operators (\cpminline{+ - / \& | sum() abs() min() max()}) and comparisons (\cpminline{== >= > != <= <}) can be used, and there is a large library of global constraints (\cpminline{AllDifferent(), Circuit(), Cumulative(), ...}) and global functions (\cpminline{Count(), Element(), ...}) \vfill
-  
-    \item There is support for both constraint satisfaction, optimisation (\cpminline{solve()}) and solution counting/enumeration (\cpminline{solveAll()}). \vfill
-  \end{itemize}
-  
-  Compared to the library of a specific solver (e.g. \textit{ortools} or \textit{gurobi}), you can specify problems at a higher level, e.g. nested expressions, and use globals that the solver might not support. CPMpy will translate this to a lower-level solver library for you.
+\begin{frame}{Correctness Is Not Enough for Models}
+  % There are good models, bad models and ugly models
+  \centering
+  \includegraphics[height=70mm]{images/GoodBadUgly}
 \end{frame}
+
+\begin{frame}{Modelling is a craft!}
+  \begin{itemize}
+    \item Different models of a problem may require different solve times, \\ 
+          for the same solver on the same instance. \vfill
+    \item Different models of a problem may scale differently \\ 
+          for the same solver on instances of growing size. \vfill
+    \item Different solvers may take different time \\
+          for the same model on the same instance. \vfill
+  \end{itemize}
+
+  \alert{Good modellers are highly valued in industry!} \vfill
+
+  Use solvers: based on decades of cutting-edge research, \\
+  they are very hard to beat in finding optimal solutions.
+\end{frame}
+
+
+\section{How: Solving}
+
+
+\begin{flashcardcpmpy}
+	\begin{frame}{Constraint-Based Modelling}
+		\defined{CPMpy} is a Python-based constraint modelling
+		\emph{library} (\alert{not a solver}): \vfill
+		\begin{itemize}
+			\item Decision variables are n-dimensional \textbf{numpy arrays}, and you can specify constraints using standard Python and NumPy functions.\\
+			only \textit{Boolean} and \textit{integer} decision variables are possible. \vfill
+			
+			\item Standard Python operators (\cpminline{+ - / \& | sum() abs() min() max()}) and comparisons (\cpminline{== >= > != <= <}) can be used, and there is a large library of global constraints (\cpminline{AllDifferent(), Circuit(), Cumulative(), ...}) and global functions (\cpminline{Count(), Element(), ...}) \vfill
+			
+			\item There is support for both constraint satisfaction, optimisation (\cpminline{solve()}) and solution counting/enumeration (\cpminline{solveAll()}). \vfill
+		\end{itemize}
+		
+		Compared to the library of a specific solver (e.g. \textit{ortools} or \textit{gurobi}), you can specify problems at a higher level, e.g. nested expressions, and use globals that the solver might not support.
+		
+		CPMpy will \textit{transform} this to a lower-level solver library for you.
+	\end{frame}
 \end{flashcardcpmpy}
 \begin{flashcardminizinc}
 	\begin{frame}{Constraint-Based Modelling}
@@ -1420,56 +1616,43 @@ A constraint model, e.g. a constraint specification, also written as simply \tex
 \end{flashcardminizinc}
 
 
-\begin{frame}{Correctness Is Not Enough for Models}
-  % There are good models, bad models and ugly models
-  \centering
-  \includegraphics[height=70mm]{images/GoodBadUgly}
+\begin{frame}{From Model to Model to Solver: transformations}
+\begin{tikzpicture}[scale=0.8, every node/.style={transform shape}, node distance=0.5cm]
+\waterfall
+\end{tikzpicture}
 \end{frame}
-
-\begin{frame}{Modelling is a craft!}
-  \begin{itemize}
-    \item Different models of a problem may require different solve times, \\ 
-          for the same solver on the same instance. \vfill
-    \item Different models of a problem may scale differently \\ 
-          for the same solver on instances of growing size. \vfill
-    \item Different solvers may take different time \\
-          for the same model on the same instance. \vfill
-  \end{itemize}
-
-  \alert{Good modellers are highly valued in industry!} \vfill
-
-  Use solvers: based on decades of cutting-edge research, \\
-  they are very hard to beat in finding optimal solutions.
-\end{frame}
-
-
-\section{How: Solving}
 
 \begin{frame}{Solving a model}
   MiniZinc and CPMpy are \defined{solver-independent} modelling frameworks: they can translate to multiple different solvers. \vfill
 
   Expressiveness of key declarative solving paradigms:
+  {\small
   \begin{itemize}
-    \item \textbf{SAT:} Boolean decision variables; clauses as constraints
-    \item \textbf{LP:} Floating-point decision variables; linear constraints \& objective
-    \item \textbf{MIP:} Floating-point\&Integer decision variables; linear constraints \& objective
-    \item \textbf{CP:} Bool\&Int decision variables; logical, mathematical, global constraints
-    \item \textbf{SMT:} Bool\&Int\&String\&... decision variables; logical, theory-specific
+  	\item \textbf{SMT:} Bool\&Int\&String\&... decision variables; logical, theory-specific constraints
+  	\item \textbf{CP:} Bool\&Int decision variables; logical, mathematical, global constraints
+  	\item \textbf{MIP:} Integer(ILP)\&Floating-point(MIP) decision variables; linear constraints \& objective
+  	%\item \textbf{LP:} Floating-point decision variables; linear constraints \&
+  	\item \textbf{PB:} Boolean decision variables; linear (Pseudo-Boolean) constraints \& objective
+    \item \textbf{SAT:} Boolean decision variables; clause constraints. MaxSAT: linear objective
   \end{itemize}
+  }
 \end{frame}
 
 \begin{frame}{There Are Many Solving Technologies}
   \begin{itemize}
-  \item No technology universally dominates all the others \vfill
-  \item One should test several technologies on each problem \vfill
   \item Some technologies have \alert{standardised} modelling languages \\ 
         across all solvers: SAT, PseudoBoolean, ILP/MIP, SMT \vfill
   \item Some technologies have \alert{non-standardised} modelling languages \\ 
-        across their solvers: CP and LCG \textit{(although: XCSP3)} \vfill
+        across their solvers: CP and LCG \textit{(although: FlatZinc, XCSP3)} \vfill
     
   \item Some technologies even have \alert{no} modelling languages: \\ 
         local search, dynamic prog., and genetic algorithms are rather methodologies. \vfill
   \end{itemize}
+  
+  No technology universally dominates all the others \vfill
+  
+  One should test several technologies on each problem! \\
+  \textit{(easy in solver-independent modelling frameworks)}
 \end{frame}
 
 \begin{frame}{How to Solve a Combinatorial Optimisation Problem?}
@@ -1496,10 +1679,10 @@ A constraint model, e.g. a constraint specification, also written as simply \tex
     }
   \end{enumerate} \vfill
   
-  \alt<2->{Not so easy, but easier than implementing combinatorial algorithms from scratch!}{Easy, right?}
+  \alt<2->{Not so easy, but easier than implementing combinatorial algorithms from scratch!\\ (... where you would have to consider most modelling decisions either way)}{Easy, right?}
 \end{frame}
 
-\begin{frame}{Model and Solve}
+\begin{frame}{Key take-aways, Model and Solve:}
 	
   \structured{Advantages:}
   \begin{itemize}
@@ -1521,9 +1704,36 @@ A constraint model, e.g. a constraint specification, also written as simply \tex
 
 \section{Course Information}
 
-\begin{frame}{Course setup at KU Leuven}
-Tour of the online learning platform...
+\begin{frame}{Lecture Plan}
+	\footnotesize
+	
+	\textbf{Modeling:}
+	\begin{itemize} \setlength{\itemsep}{0pt}
+		\item L01: Introduction
+		\item L02: Basic modeling
+		\item L03: Global Constraints
+		\item L04: Viewpoints and redundancy
+		\item L05: Symmetry and dominance
+	\end{itemize}
+	
+	\textbf{Solving:}
+	\begin{itemize} \setlength{\itemsep}{0pt}
+		\item L06: Solving technologies and encodings, part 1
+		\item L07: Solving technologies and encodings, part 2
+		\item L08: Portfolio solvers, algorithm configuration and parallelism
+	\end{itemize}
+	
+	\textbf{Advanced topics in CP research:}
+	\begin{itemize} \setlength{\itemsep}{0pt}
+		\item L09: Topic TBA
+		\item L10: Topic TBA
+	\end{itemize}
 \end{frame}
+
+
+% \begin{frame}{Course setup at KU Leuven}
+% Tour of the online learning platform...
+% \end{frame}
 
 
 \end{document}

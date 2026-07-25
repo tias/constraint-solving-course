@@ -18,39 +18,32 @@ There are 6 exercise sessions (and an initial one for at home)
 
     Short intro to CPMpy and basic modeling exercises.
 
-## E2: Debugging, solving, explaining and reification
+## E2: Reification and global constraints
 
-* E2_debug_expl_reif.ipynb
+* E2_reify_and_global_constraints.ipynb
 
-    Exercises on solving, debugging, explaining and reification.
+    Exercises on reification and modeling with global constraints.
 
-## E3: Global constraints
+## E3: Viewpoints
 
-* E3_global_constraints.ipynb
-    
-    Exercises on modeling with global constraints.
+* E3_viewpoints.ipynb
 
-## E4: Advanced modeling 1: viewpoints
-
-* E4_viewpoints.ipynb
-    
     Exercises on viewpoints, channeling, auxiliary variables and implied constraints.
 
-## E5: Advanced modeling 2: symmetry
+## E4: Symmetry and dominance
 
-* E5_symmetry.ipynb
+* E4_symmetry_and_dominance.ipynb
 
     Exercises on symmetry and dominance breaking.
 
-## E6: Solving technologies + algorithm configuration
+## E5: Solving technologies and encodings
 
-Consists of two parts:
+* E5_solving.ipynb
 
-* E6a_solving.ipynb
+    Exercises on solving technologies and encodings.
 
-    Exercises on solving technologies and encodings
+## E6: Low-level encodings and algorithm configuration
 
-* E6b_configuration.ipynb
+* E6_lowlevel_and_configuration.ipynb
 
-    Hands-on exercises on Algorithm Selection, Algorithm Configuration and Hyperparameter Configuration
-
+    Exercises on PB/SAT encodings, plus algorithm selection, algorithm configuration and hyperparameter configuration.
