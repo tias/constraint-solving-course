@@ -1115,10 +1115,12 @@ model += q[0] <= (n // 2) - 1\end{lstlisting}
     \item Many constraint problems exhibit \defined{dominance relations}
   \end{itemize}
   \begin{definition}[Dominance]
-    Given a \emph{minimisation} problem with objective function $f$, a (partial) assignment $s_1$ \defined{dominates} a (partial) assignment $s_2$
-    (written $s_1 \prec s_2$) if: whenever $s_2$ can be extended to a feasible solution of cost $c$,
-    there exists a feasible extension of $s_1$ with cost at most $c$.
-    In particular, discarding dominated assignments never loses an optimal solution.
+    Given a problem with an objective function $f$, \defined{a dominance relation} $\prec$ is a binary relation on the set of solutions $S$, such that if $s_1 \prec s_2$ for $s_1, s_2 \in S$, then one of the following is true:
+    \begin{enumerate}
+      \item $s_1$ is a solution and $s_2$ is not.
+      \item They are both solutions and $f(s_1) < f(s_2)$.
+      \item They are both non-solutions and $f(s_1) < f(s_2)$.
+    \end{enumerate}
   \end{definition}
 \end{frame}
 
